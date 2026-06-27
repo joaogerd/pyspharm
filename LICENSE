@@ -1,0 +1,18 @@
+# Licensing for this distribution
+
+This repository is a mixed-license distribution.  No single license applies to
+every file.
+
+- The historical SPHEREPACK Fortran implementation and derivative files are
+  distributed under the UCAR/NCAR SPHEREPACK license in
+  `LICENSES/UCAR-SPHEREPACK.txt`.  The original `LICENSE.spherepack` file is
+  retained unchanged for provenance.
+- The historical Python binding carries the permission and warranty notice
+  preserved in `LICENSES/PYSPHARM-LEGACY-PYTHON.txt`.
+- New files created specifically for the maintained `pyspharm-ng` project are
+  licensed under the BSD 3-Clause License in `LICENSES/BSD-3-Clause.txt`,
+  unless a file states otherwise.
+
+The `NOTICE` file identifies material provenance and the conditions that must
+be retained in source and binary distributions.  In particular, this project
+must not imply endorsement by UCAR, NCAR, their sponsors, or contributors.
