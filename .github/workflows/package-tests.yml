@@ -5,9 +5,11 @@ on:
     branches:
       - master
       - feature/pyspharm-ng-stage-1-foundation
+      - feature/pyspharm-ng-stage-2-packaging
   push:
     branches:
       - feature/pyspharm-ng-stage-2-packaging
+      - feature/pyspharm-ng-stage-3-fortran-modernization
 
 permissions:
   contents: read
@@ -32,6 +34,9 @@ jobs:
 
       - name: Verify Python 3 compatibility migration
         run: python tools/maintenance/modernize_integer_division.py --check
+
+      - name: Validate fixed-to-free Fortran conversion
+        run: python tools/fortran/fixed_to_free.py --validate
 
       - name: Install Fortran compiler
         run: |
