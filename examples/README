@@ -1,9 +1,8 @@
 # Examples
 
 The examples are executable from a source checkout after installing the package.
-They use the maintained `pyspharm` API whenever an equivalent public operation
-exists. The historical `spharm` import remains only for helper routines that
-are not yet part of the maintained API.
+They use only the maintained `pyspharm` public API. The historical `spharm`
+compatibility import is not needed to run or adapt the examples.
 
 ## Setup
 
@@ -43,9 +42,21 @@ Plotting is opt-in: the scripts do not import matplotlib unless `--output` or
 `--show` is used. This allows numerical smoke tests to run in a minimal build
 environment.
 
+## Public utilities demonstrated
+
+The examples use these maintained helpers:
+
+- `pyspharm.gaussian_latitudes_weights(nlat)`;
+- `pyspharm.spectral_indices(truncation)`;
+- `pyspharm.geodesic_points(edge_points)`;
+- `pyspharm.interpolate_scalar(coefficients, latitude=..., longitude=...)`;
+- `pyspharm.regrid_scalar(source, destination, field, ...)`.
+
 ## Numerical contract
 
 Examples use the retained single-precision SPHEREPACK ABI: gridded arrays are
 `float32` and spectral arrays are `complex64`. Do not silently replace these
 with double precision when adapting an example; use `pyspharm.as_real32` and
-`pyspharm.as_complex64` explicitly at application boundaries.
+`pyspharm.as_complex64` explicitly at application boundaries. Gaussian grid
+metadata is intentionally `float64`, matching the historical coordinate and
+quadrature helper.
