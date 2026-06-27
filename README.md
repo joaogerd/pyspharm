@@ -1,57 +1,75 @@
-Requires: numpy, meson-python and gfortran.
+# pyspharm-ng
 
-Please read LICENSE.spherepack
+`pyspharm-ng` is the maintained successor to the historical `pyspharm`
+Python interface for NCAR/UCAR SPHEREPACK spherical-harmonic transforms.
 
-Installation:
+The distribution name is **`pyspharm-ng`**.  This compatibility phase keeps the
+historical Python import path and public interface:
 
-python -m build
+```python
+import spharm
 
-python -m pip install dist/*whl
-
-View documentation by pointing your browser to html/index.html.
-
-Example programs are provided in the examples directory.
-
-Copyright: (applies only to python binding, Spherepack fortran
-source code licensing is in LICENSE.spherepack)
-
-Permission to use, copy, modify, and distribute this software and its
-documentation for any purpose and without fee is hereby granted,
-provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in
-supporting documentation.
-THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO
-EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
-USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-
-## Windows Installation
-
-If you are a Windows user, you can download the original compressed package of this project. After downloading, extract the package, open a command prompt, and `cd` into the extracted directory. Then run:
-
-```bash
-python windows_installer.py
+transform = spharm.Spharmt(144, 72, gridtype="gaussian")
 ```
 
-Follow the prompts to complete the installation.
+A new `pyspharm` API will be introduced separately after the legacy contract
+and packaging are stable.  Existing code should therefore continue to import
+`spharm` for now.
 
-## Maintained-fork modernization
+## Installation
 
-This repository is being prepared as the foundation for an independently
-maintained distribution, tentatively named **pyspharm-ng**. The staged plan is
-in [docs/modernization/README.md](docs/modernization/README.md).
+Published wheels will be available in a later release.  Until then, install
+from a source checkout with a supported Python and a Fortran compiler:
 
-Stage 1 preserves the provenance and licensing of the legacy code and defines
-a numerical reference contract before changes to the packaging, Python API or
-Fortran implementation. See:
+```bash
+python -m pip install --upgrade pip
+python -m pip install .
+```
 
-- [mixed-license overview](LICENSE);
-- [third-party notices](NOTICE);
-- [scientific baseline contract](docs/modernization/01-scientific-baseline.md).
+The build uses the PEP 517 Meson backend.  A source installation requires a
+working C compiler and `gfortran` (or a compatible Fortran compiler).
 
-The current root documentation remains historical and will be replaced during
-the packaging modernization stage. Until then, do not interpret this branch as
-a new PyPI release.
+For development and tests:
+
+```bash
+python -m pip install -e ".[tests]"
+python -m pytest
+```
+
+To build distributable artifacts:
+
+```bash
+python -m pip install build
+python -m build
+```
+
+The project CI installs both the generated wheel and the source distribution
+into clean virtual environments and runs an import-and-transform smoke test.
+
+## Compatibility contract
+
+The current numerical implementation is preserved as a documented legacy
+contract.  Before modifying the Fortran algorithms or the scientific API, run:
+
+```bash
+python tests/reference/validate_legacy_baseline.py
+```
+
+The checked-in reference covers regular and Gaussian grids with both stored and
+computed Legendre workspaces.  Details are in
+[the scientific baseline document](docs/modernization/01-scientific-baseline.md).
+
+## License and provenance
+
+This repository is a mixed-license distribution.  It contains SPHEREPACK-
+derived code under the UCAR/NCAR license and historical Python-binding code
+under its original permission notice.  New maintained-project files use the
+BSD 3-Clause license unless stated otherwise.  Read [LICENSE](LICENSE) and
+[NOTICE](NOTICE) before redistributing the package.
+
+## Modernization status
+
+The modernization plan is tracked in [docs/modernization/README.md](docs/modernization/README.md).
+Stage 2 makes the project an independent PEP 517/Meson distribution, removes
+the obsolete `numpy.distutils` build, and preserves the legacy `spharm` import
+path while the next stages modernize the Fortran source and public API.
