@@ -8,6 +8,7 @@ handling without duplicating or changing SPHEREPACK algorithms.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isqrt
 from numbers import Integral, Real
 from typing import Any, Literal, Optional, Tuple
 
@@ -30,7 +31,7 @@ class GridConfiguration:
     Parameters
     ----------
     nlon, nlat
-        Longitude and latitude counts.  Fields use shape ``(nlat, nlon)`` or
+        Longitude and latitude counts. Fields use shape ``(nlat, nlon)`` or
         ``(nlat, nlon, nt)``.
     radius
         Sphere radius in metres.
@@ -64,9 +65,9 @@ class GridConfiguration:
 class SphericalHarmonicTransform:
     """Modern public interface for scalar and wind spherical harmonics.
 
-    The underlying SPHEREPACK/F2PY ABI is single precision.  Transform methods
+    The underlying SPHEREPACK/F2PY ABI is single precision. Transform methods
     therefore require ``numpy.float32`` real fields and ``numpy.complex64``
-    spectral coefficients.  Use :func:`as_real32` and :func:`as_complex64` to
+    spectral coefficients. Use :func:`as_real32` and :func:`as_complex64` to
     make a conversion explicit at an application boundary.
     """
 
@@ -136,7 +137,7 @@ class SphericalHarmonicTransform:
         """Analyze a scalar field into triangular spectral coefficients.
 
         ``field`` must have shape ``(nlat, nlon)`` or ``(nlat, nlon, nt)`` and
-        dtype ``float32``.  The returned coefficients have dtype ``complex64``.
+        dtype ``float32``. The returned coefficients have dtype ``complex64``.
         """
 
         native_field = self._real_field(field, name="field")
@@ -148,10 +149,12 @@ class SphericalHarmonicTransform:
         """Synthesize a scalar field from triangular spectral coefficients.
 
         ``coefficients`` must have shape ``(ncoeff,)`` or ``(ncoeff, nt)`` and
-        dtype ``complex64``.  The returned field has dtype ``float32``.
+        dtype ``complex64``. The returned field has dtype ``float32``.
         """
 
-        native_coefficients = self._spectral_coefficients(coefficients, name="coefficients")
+        native_coefficients = self._spectral_coefficients(
+            coefficients, name="coefficients"
+        )
         result = self._legacy.spectogrd(native_coefficients)
         return np.asfortranarray(result, dtype=np.float32)
 
@@ -267,9 +270,10 @@ def _require_dtype(values: Any, dtype: np.dtype, *, name: str) -> np.ndarray:
     array = np.asarray(values)
     expected = np.dtype(dtype)
     if array.dtype != expected:
+        converter = "as_real32" if expected == np.dtype(np.float32) else "as_complex64"
         raise PrecisionError(
             f"{name} must have dtype {expected.name}; use "
-            f"as_{expected.name}(...) to convert explicitly"
+            f"{converter}(...) to convert explicitly"
         )
     return array
 
@@ -283,7 +287,7 @@ def _truncation_from_coefficient_count(count: int) -> int:
     if count < 1:
         raise ValueError("spectral coefficient arrays must not be empty")
     discriminant = 1 + 8 * int(count)
-    root = int(np.sqrt(discriminant))
+    root = isqrt(discriminant)
     if root * root != discriminant or (root - 3) % 2:
         raise ValueError(
             "spectral coefficient count must equal "
