@@ -16,6 +16,10 @@ here. Historical `pyspharm` releases predate this changelog.
   single-precision SPHEREPACK ABI.
 - Scalar and wind transform methods with validated array ranks, shapes and
   triangular spectral-coefficient sizes.
+- Portable manylinux x86_64 wheel builds and installed-wheel smoke tests for
+  CPython 3.10, 3.11 and 3.12.
+- A stable-tag GitHub Release workflow with tag/version/changelog validation.
+- Release, support-scope and compatibility/deprecation policies.
 
 ### Changed
 
