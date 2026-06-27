@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - feature/pyspharm-ng-stage-3-fortran-modernization
+  pull_request:
+    branches:
+      - feature/pyspharm-ng-stage-2-packaging
 
 permissions:
   contents: read
