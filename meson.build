@@ -86,11 +86,15 @@ fixed_form_fortran_sources = files(
   'src/alf.f',
 )
 
+fortran_converter_script = join_paths(
+  meson.project_source_root(),
+  'tools/fortran/fixed_to_free.py',
+)
 fixed_to_free = generator(
   py,
   output: '@BASENAME@.f90',
   arguments: [
-    'tools/fortran/fixed_to_free.py',
+    fortran_converter_script,
     '--convert', '@INPUT@', '@OUTPUT@',
   ],
 )
