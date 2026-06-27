@@ -4,11 +4,23 @@ import numpy as np
 import pytest
 
 import pyspharm
+import spharm
 
 
 @pytest.fixture
 def transform() -> pyspharm.SphericalHarmonicTransform:
     return pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
+
+
+def _wind_fields() -> tuple[np.ndarray, np.ndarray]:
+    """Return deterministic non-zero wind fields in the legacy ABI precision."""
+
+    longitude = np.arange(64, dtype=np.float32) * (2.0 * np.pi / 64.0)
+    latitude = np.linspace(np.pi / 2.0, -np.pi / 2.0, 32, dtype=np.float32)
+    lon, lat = np.meshgrid(longitude, latitude)
+    zonal = np.asfortranarray(np.cos(lat) * np.sin(lon), dtype=np.float32)
+    meridional = np.asfortranarray(np.sin(2.0 * lat) * np.cos(lon), dtype=np.float32)
+    return zonal, meridional
 
 
 def test_scalar_roundtrip_uses_explicit_native_precision(transform):
@@ -40,6 +52,52 @@ def test_wind_api_delegates_to_legacy_vector_transforms(transform):
     assert restored_zonal.shape == restored_meridional.shape == (32, 64)
     assert np.all(np.isfinite(restored_zonal))
     assert np.all(np.isfinite(restored_meridional))
+
+
+@pytest.mark.parametrize("grid", ["regular", "gaussian"])
+def test_diagnostic_methods_match_legacy_engine(grid):
+    transform = pyspharm.SphericalHarmonicTransform(64, 32, grid=grid)
+    legacy = spharm.Spharmt(64, 32, gridtype=grid)
+    zonal, meridional = _wind_fields()
+
+    expected_streamfunction, expected_velocity_potential = legacy.getpsichi(
+        zonal, meridional, ntrunc=21
+    )
+    streamfunction, velocity_potential = transform.streamfunction_velocity_potential(
+        zonal, meridional, truncation=21
+    )
+
+    assert streamfunction.dtype == velocity_potential.dtype == np.float32
+    assert streamfunction.flags.f_contiguous
+    assert velocity_potential.flags.f_contiguous
+    np.testing.assert_allclose(streamfunction, expected_streamfunction, rtol=2.0e-5, atol=2.0e-5)
+    np.testing.assert_allclose(
+        velocity_potential, expected_velocity_potential, rtol=2.0e-5, atol=2.0e-5
+    )
+
+    coefficients = transform.analyze_scalar(zonal, truncation=21)
+    expected_zonal_gradient, expected_meridional_gradient = legacy.getgrad(coefficients)
+    zonal_gradient, meridional_gradient = transform.gradient(coefficients)
+
+    assert zonal_gradient.dtype == meridional_gradient.dtype == np.float32
+    assert zonal_gradient.flags.f_contiguous
+    assert meridional_gradient.flags.f_contiguous
+    np.testing.assert_allclose(zonal_gradient, expected_zonal_gradient, rtol=2.0e-5, atol=2.0e-5)
+    np.testing.assert_allclose(
+        meridional_gradient, expected_meridional_gradient, rtol=2.0e-5, atol=2.0e-5
+    )
+
+
+def test_wind_diagnostic_input_validation(transform):
+    zonal, meridional = _wind_fields()
+
+    with pytest.raises(ValueError, match="same shape"):
+        transform.streamfunction_velocity_potential(
+            zonal, np.expand_dims(meridional, axis=-1)
+        )
+
+    with pytest.raises(pyspharm.PrecisionError, match="as_complex64"):
+        transform.gradient(np.ones(253, dtype=np.complex128))
 
 
 def test_precision_boundary_is_explicit(transform):
