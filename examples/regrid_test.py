@@ -16,7 +16,6 @@ import math
 import numpy as np
 
 import pyspharm
-from spharm import gaussian_lats_wts, getgeodesicpts, legendre, specintrp
 
 
 def rossby_haurwitz_wave(
@@ -82,7 +81,9 @@ def main() -> None:
         )
     )
 
-    gaussian_latitude_degrees, _ = gaussian_lats_wts(gaussian_nlat)
+    gaussian_latitude_degrees, _ = pyspharm.gaussian_latitudes_weights(
+        gaussian_nlat
+    )
     gaussian_latitude = np.deg2rad(gaussian_latitude_degrees).astype(np.float32)
     gaussian_longitude = np.linspace(
         0.0, 2.0 * np.pi, gaussian_nlon, endpoint=False, dtype=np.float32
@@ -109,11 +110,14 @@ def main() -> None:
 
     truncation = regular_nlat - 1
     coefficients = regular_transform.analyze_scalar(regular_exact, truncation=truncation)
-    latitude_points, longitude_points = getgeodesicpts(geodesic_edges)
+    latitude_points, longitude_points = pyspharm.geodesic_points(geodesic_edges)
     interpolation_errors = []
     for latitude_degrees, longitude_degrees in zip(latitude_points, longitude_points):
-        associated_legendre = legendre(latitude_degrees, truncation)
-        interpolated = specintrp(longitude_degrees, coefficients, associated_legendre)
+        interpolated = pyspharm.interpolate_scalar(
+            coefficients,
+            latitude=float(latitude_degrees),
+            longitude=float(longitude_degrees),
+        )
         exact = rossby_haurwitz_wave(
             wavenumber,
             angular_velocity,
