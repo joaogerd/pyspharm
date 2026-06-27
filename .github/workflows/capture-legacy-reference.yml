@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - feature/pyspharm-ng-stage-1-foundation
+  pull_request:
+    branches:
+      - master
 
 permissions:
   contents: read
