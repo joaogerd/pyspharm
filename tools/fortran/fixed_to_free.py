@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Convert the audited SPHEREPACK F77 sources from fixed to free form.
 
-This converter is intentionally narrow.  It processes only the source manifest
-below, reads the fixed-form statement field (columns 7–72), preserves statement
-labels and continuation semantics, and rewrites column-one comments as free
-form comments.  It does not alter identifiers, types, arithmetic, COMMON
-blocks, or control flow.
+The converter reads only the fixed-form statement field (columns 7–72),
+preserves labels and continuation semantics, and rewrites column-one comments
+as free-form comments. It deliberately does not alter identifiers, types,
+arithmetic, COMMON blocks, or control flow.
 
-The generated ``src/free_form/*.f90`` files are the compiled Stage-3 sources.
-The historical ``src/*.f`` files remain in the tree as immutable conversion
-inputs and provenance records until a later reviewed cleanup stage.
+Meson invokes this tool once per source during the build, producing temporary
+`.f90` files in the build directory. The historical `.f` files remain the
+version-controlled provenance inputs until the semantic modernization phase.
 """
 
 from __future__ import annotations
@@ -21,7 +20,6 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_DIRECTORY = ROOT / "src"
-OUTPUT_DIRECTORY = SOURCE_DIRECTORY / "free_form"
 
 # Keep this list aligned with the F2PY extension source list in meson.build.
 SOURCES = (
@@ -62,7 +60,7 @@ COMMENT_PREFIXES = frozenset("Cc*!Dd")
 
 @dataclass(frozen=True)
 class ConversionResult:
-    """A converted file and simple conversion statistics."""
+    """Conversion statistics for one source file."""
 
     source: Path
     target: Path
@@ -91,7 +89,7 @@ def free_comment(line: str) -> str:
     return f"!{line[1:].rstrip()}"
 
 
-def convert_text(text: str, *, filename: str) -> tuple[str, ConversionResult]:
+def convert_text(text: str, *, source: Path, target: Path) -> tuple[str, ConversionResult]:
     """Convert one fixed-form source text to free form without semantic edits."""
 
     output: list[str] = []
@@ -115,21 +113,23 @@ def convert_text(text: str, *, filename: str) -> tuple[str, ConversionResult]:
         label = expanded[:5].strip()
         if label and not label.isdigit():
             raise ValueError(
-                f"{filename}:{lineno}: non-numeric fixed-form label {label!r}"
+                f"{source.name}:{lineno}: non-numeric fixed-form label {label!r}"
             )
         continuation = len(expanded) > 5 and expanded[5] not in {" ", "0"}
         statement = fixed_statement_field(expanded).strip()
         if not statement:
-            raise ValueError(f"{filename}:{lineno}: empty fixed-form statement field")
+            raise ValueError(
+                f"{source.name}:{lineno}: empty fixed-form statement field"
+            )
 
         if continuation:
             if label:
                 raise ValueError(
-                    f"{filename}:{lineno}: continuation line must not carry a label"
+                    f"{source.name}:{lineno}: continuation line must not carry a label"
                 )
             if previous_statement is None:
                 raise ValueError(
-                    f"{filename}:{lineno}: continuation without a preceding statement"
+                    f"{source.name}:{lineno}: continuation without a preceding statement"
                 )
             output[previous_statement] = output[previous_statement].rstrip() + " &"
             output.append(f"  & {statement}")
@@ -143,8 +143,6 @@ def convert_text(text: str, *, filename: str) -> tuple[str, ConversionResult]:
         label_count += bool(label)
 
     converted = "\n".join(output).rstrip() + "\n"
-    source = SOURCE_DIRECTORY / filename
-    target = OUTPUT_DIRECTORY / f"{source.stem}.f90"
     return converted, ConversionResult(
         source=source,
         target=target,
@@ -154,56 +152,59 @@ def convert_text(text: str, *, filename: str) -> tuple[str, ConversionResult]:
     )
 
 
-def render_source(filename: str) -> tuple[str, ConversionResult]:
-    """Read and convert one manifest source file."""
+def convert_file(source: Path, target: Path) -> ConversionResult:
+    """Convert one source file and write the resulting free-form file."""
 
-    source = SOURCE_DIRECTORY / filename
-    return convert_text(source.read_text(encoding="utf-8"), filename=filename)
+    if source.name not in SOURCES:
+        raise ValueError(f"{source} is not an audited Stage-3 source")
+    converted, result = convert_text(
+        source.read_text(encoding="utf-8"), source=source, target=target
+    )
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(converted, encoding="utf-8")
+    return result
 
 
-def apply() -> int:
-    """Generate all free-form source files."""
+def render_directory(directory: Path) -> int:
+    """Render all audited sources to one directory for review or inspection."""
 
-    OUTPUT_DIRECTORY.mkdir(parents=True, exist_ok=True)
     for filename in SOURCES:
-        converted, result = render_source(filename)
-        result.target.write_text(converted, encoding="utf-8")
+        result = convert_file(SOURCE_DIRECTORY / filename, directory / f"{Path(filename).stem}.f90")
         print(
-            f"generated {result.target.relative_to(ROOT)} "
+            f"generated {result.target} "
             f"(comments={result.comments}, continuations={result.continuations}, "
             f"labels={result.labels})"
         )
     return 0
 
 
-def check() -> int:
-    """Verify generated sources are present and match the deterministic conversion."""
+def validate() -> int:
+    """Parse and convert every audited source without persisting generated files."""
 
-    failures: list[str] = []
     for filename in SOURCES:
-        expected, result = render_source(filename)
-        if not result.target.is_file():
-            failures.append(f"missing {result.target.relative_to(ROOT)}")
-            continue
-        actual = result.target.read_text(encoding="utf-8")
-        if actual != expected:
-            failures.append(f"stale {result.target.relative_to(ROOT)}")
-
-    if failures:
-        print("Free-form Fortran conversion check failed:", file=sys.stderr)
-        for failure in failures:
-            print(f"  - {failure}", file=sys.stderr)
-        return 1
-    print(f"Verified {len(SOURCES)} free-form Fortran sources.")
+        source = SOURCE_DIRECTORY / filename
+        convert_text(source.read_text(encoding="utf-8"), source=source, target=Path("/dev/null"))
+    print(f"Validated conversion of {len(SOURCES)} fixed-form Fortran sources.")
     return 0
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--apply", action="store_true", help="write generated .f90 files")
-    mode.add_argument("--check", action="store_true", help="verify generated .f90 files")
-    mode.add_argument("--list", action="store_true", help="list conversion inputs")
+    mode.add_argument(
+        "--convert",
+        nargs=2,
+        metavar=("INPUT", "OUTPUT"),
+        help="convert one audited fixed-form source to one free-form output",
+    )
+    mode.add_argument(
+        "--render-dir",
+        type=Path,
+        metavar="DIRECTORY",
+        help="render every audited source to DIRECTORY",
+    )
+    mode.add_argument("--validate", action="store_true", help="validate all conversions")
+    mode.add_argument("--list", action="store_true", help="list audited conversion inputs")
     return parser.parse_args()
 
 
@@ -212,9 +213,19 @@ def main() -> int:
     if args.list:
         print("\n".join(SOURCES))
         return 0
-    if args.apply:
-        return apply()
-    return check()
+    if args.validate:
+        return validate()
+    if args.render_dir:
+        return render_directory(args.render_dir)
+
+    source_arg, target_arg = args.convert
+    result = convert_file(Path(source_arg), Path(target_arg))
+    print(
+        f"generated {result.target} "
+        f"(comments={result.comments}, continuations={result.continuations}, "
+        f"labels={result.labels})"
+    )
+    return 0
 
 
 if __name__ == "__main__":
