@@ -9,6 +9,7 @@ from importlib.metadata import PackageNotFoundError, version
 
 from .api import (
     GridConfiguration,
+    PrecisionError,
     SphericalHarmonicTransform,
     as_complex64,
     as_real32,
@@ -21,6 +22,7 @@ except PackageNotFoundError:  # Running from an unpacked source tree.
 
 __all__ = [
     "GridConfiguration",
+    "PrecisionError",
     "SphericalHarmonicTransform",
     "as_complex64",
     "as_real32",
