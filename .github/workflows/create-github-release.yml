@@ -52,7 +52,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Verify tag, version and changelog
+      - name: Verify tag, version, changelog and release notes
         run: python tools/release/verify_release_metadata.py --tag "${{ steps.release_tag.outputs.tag }}"
 
   source_distribution:
@@ -150,6 +150,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Check out tagged release notes
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.tag }}
+
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
@@ -165,5 +170,5 @@ jobs:
           test -n "$RELEASE_TAG"
           gh release create "$RELEASE_TAG" \
             --title "pyspharm-ng ${RELEASE_TAG#v}" \
-            --generate-notes \
+            --notes-file "docs/releases/${RELEASE_TAG#v}.md" \
             release-assets/*.tar.gz release-assets/*.whl
