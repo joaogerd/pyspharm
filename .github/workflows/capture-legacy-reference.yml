@@ -2,6 +2,9 @@ name: Capture legacy numerical reference
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/pyspharm-ng-stage-1-foundation
 
 permissions:
   contents: read
