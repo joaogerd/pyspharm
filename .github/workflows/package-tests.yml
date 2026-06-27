@@ -30,6 +30,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      - name: Verify Python 3 compatibility migration
+        run: python tools/maintenance/modernize_integer_division.py --check
+
       - name: Install Fortran compiler
         run: |
           sudo apt-get update
