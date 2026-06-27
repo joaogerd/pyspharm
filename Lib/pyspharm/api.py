@@ -1,6 +1,6 @@
 """Typed, explicit facade over the compatibility :mod:`spharm` engine.
 
-This module deliberately delegates numerical work to ``spharm.Spharmt``.  It
+This module deliberately delegates numerical work to ``spharm.Spharmt``. It
 adds a maintained public vocabulary, input validation and explicit precision
 handling without duplicating or changing SPHEREPACK algorithms.
 """
@@ -195,6 +195,53 @@ class SphericalHarmonicTransform:
         return (
             np.asfortranarray(zonal_wind, dtype=np.float32),
             np.asfortranarray(meridional_wind, dtype=np.float32),
+        )
+
+    def streamfunction_velocity_potential(
+        self,
+        zonal_wind: np.ndarray,
+        meridional_wind: np.ndarray,
+        *,
+        truncation: Optional[int] = None,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Diagnose streamfunction and velocity potential from horizontal wind.
+
+        Inputs use the same shape and dtype rules as :meth:`analyze_wind`.
+        ``truncation`` applies to the vector-harmonic analysis before the
+        Laplacian inversion. The returned tuple is ``(streamfunction,
+        velocity_potential)`` in ``float32`` with the wind-field shape.
+        """
+
+        u = self._real_field(zonal_wind, name="zonal_wind")
+        v = self._real_field(meridional_wind, name="meridional_wind")
+        if u.shape != v.shape:
+            raise ValueError("zonal_wind and meridional_wind must have the same shape")
+        ntrunc = self._validate_truncation(truncation)
+        streamfunction, velocity_potential = self._legacy.getpsichi(
+            u, v, ntrunc=ntrunc
+        )
+        return (
+            np.asfortranarray(streamfunction, dtype=np.float32),
+            np.asfortranarray(velocity_potential, dtype=np.float32),
+        )
+
+    def gradient(self, coefficients: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Synthesize the zonal and meridional gradient of a scalar spectrum.
+
+        ``coefficients`` must use ``complex64`` triangular spectral storage.
+        The returned tuple is ``(zonal_gradient, meridional_gradient)`` in
+        ``float32`` with shape ``(nlat, nlon)`` or ``(nlat, nlon, nt)``.
+        """
+
+        native_coefficients = self._spectral_coefficients(
+            coefficients, name="coefficients"
+        )
+        zonal_gradient, meridional_gradient = self._legacy.getgrad(
+            native_coefficients
+        )
+        return (
+            np.asfortranarray(zonal_gradient, dtype=np.float32),
+            np.asfortranarray(meridional_gradient, dtype=np.float32),
         )
 
     def _real_field(self, values: np.ndarray, *, name: str) -> np.ndarray:
