@@ -1,0 +1,90 @@
+name: Test package distributions
+
+on:
+  pull_request:
+    branches:
+      - master
+      - feature/pyspharm-ng-stage-1-foundation
+  push:
+    branches:
+      - feature/pyspharm-ng-stage-2-packaging
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install Fortran compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gfortran
+
+      - name: Install test and build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build ".[tests]"
+
+      - name: Run source and legacy-contract tests
+        run: |
+          python -m pytest
+          python tests/reference/validate_legacy_baseline.py
+
+      - name: Build wheel and source distribution
+        run: python -m build
+
+      - name: Verify wheel installation outside checkout
+        run: |
+          python -m venv /tmp/pyspharm-wheel
+          /tmp/pyspharm-wheel/bin/python -m pip install --upgrade pip
+          /tmp/pyspharm-wheel/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/pyspharm-wheel/bin/python -c '
+          import importlib
+          import numpy as np
+          import spharm
+          assert spharm.__version__ == "0.1.0.dev0"
+          assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
+          transform = spharm.Spharmt(64, 32, gridtype="gaussian")
+          coefficients = transform.grdtospec(np.ones((32, 64), dtype=np.float32), 21)
+          assert coefficients.shape == (253,)
+          '
+
+      - name: Verify source-distribution installation outside checkout
+        run: |
+          python -m venv /tmp/pyspharm-sdist
+          /tmp/pyspharm-sdist/bin/python -m pip install --upgrade pip
+          /tmp/pyspharm-sdist/bin/python -m pip install dist/*.tar.gz
+          cd /tmp
+          /tmp/pyspharm-sdist/bin/python -c '
+          import importlib
+          import numpy as np
+          import spharm
+          assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
+          transform = spharm.Spharmt(64, 32, gridtype="regular")
+          coefficients = transform.grdtospec(np.ones((32, 64), dtype=np.float32), 21)
+          assert coefficients.shape == (253,)
+          '
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions-py${{ matrix.python }}-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
