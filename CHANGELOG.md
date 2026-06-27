@@ -5,6 +5,15 @@ here. Historical `pyspharm` releases predate this changelog.
 
 ## 0.1.1.dev0 — Unreleased
 
+### Added
+
+- `SphericalHarmonicTransform.gradient` for zonal and meridional gradients
+  synthesized from scalar spectral coefficients.
+- `SphericalHarmonicTransform.streamfunction_velocity_potential` for
+  streamfunction and velocity-potential diagnostics from horizontal wind.
+- Stage 7 documentation and equivalence tests against the legacy compatibility
+  engine on regular and Gaussian grids.
+
 ### Fixed
 
 - Synchronize the Meson project version with the PEP 621 package version.
