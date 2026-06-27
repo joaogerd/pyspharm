@@ -83,7 +83,7 @@ def test_interpolate_scalar_rejects_incompatible_inputs():
         pyspharm.interpolate_scalar(
             coefficients[:, None], latitude=0.0, longitude=0.0
         )
-    with pytest.raises(ValueError, match="triangular"):
+    with pytest.raises(ValueError, match="coefficient count"):
         pyspharm.interpolate_scalar(
             np.ones(2, dtype=np.complex64), latitude=0.0, longitude=0.0
         )
