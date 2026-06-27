@@ -59,7 +59,7 @@ def test_precision_boundary_is_explicit(transform):
 
 
 def test_spectral_shape_is_checked(transform):
-    invalid = np.ones(10, dtype=np.complex64)
+    invalid = np.ones(11, dtype=np.complex64)
 
     with pytest.raises(ValueError, match="coefficient count"):
         transform.synthesize_scalar(invalid)
