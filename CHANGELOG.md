@@ -3,6 +3,15 @@
 All notable changes to the maintained `pyspharm-ng` distribution are recorded
 here. Historical `pyspharm` releases predate this changelog.
 
+## 0.1.1.dev0 — Unreleased
+
+### Fixed
+
+- Synchronize the Meson project version with the PEP 621 package version.
+- Derive `spharm.__version__` from installed distribution metadata.
+- Document and continuously test the supported editable build workflow.
+- Require matching Meson and package versions before stable release validation.
+
 ## 0.1.0 — 2026-06-27
 
 ### Added
