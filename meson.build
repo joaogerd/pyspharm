@@ -34,6 +34,7 @@ py.install_sources(
     'Lib/pyspharm/__init__.py',
     'Lib/pyspharm/api.py',
     'Lib/pyspharm/regrid.py',
+    'Lib/pyspharm/utilities.py',
     'Lib/pyspharm/py.typed',
   ],
   subdir: 'pyspharm',
