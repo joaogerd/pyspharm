@@ -20,12 +20,22 @@ py_mod = import('python')
 py = py_mod.find_installation(pure: false)
 py_dep = py.dependency()
 
+# ``spharm`` remains the compatibility API while ``pyspharm`` is the
+# maintained, typed facade introduced in Stage 4.
 py.install_sources(
   [
     'Lib/__init__.py',
     'Lib/spharm.py',
   ],
   subdir: 'spharm',
+)
+py.install_sources(
+  [
+    'Lib/pyspharm/__init__.py',
+    'Lib/pyspharm/api.py',
+    'Lib/pyspharm/py.typed',
+  ],
+  subdir: 'pyspharm',
 )
 
 incdir_numpy = run_command(
