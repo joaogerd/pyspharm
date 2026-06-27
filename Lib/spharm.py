@@ -120,7 +120,11 @@ USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 """
-import _spherepack, numpy, math, sys
+from . import _spherepack
+
+import math
+import numpy
+import sys
 
 # define a list of instance variables that cannot be rebound
 # or unbound.
@@ -234,18 +238,18 @@ prevent deletion of read-only instance variables.
             self.legfunc = legfunc
 
         if nlon%2:                              # nlon is odd
-            n1 = min(nlat, (nlon + 1)/2)
+            n1 = min(nlat, (nlon + 1)//2)
         else:
-            n1 = min(nlat, (nlon + 2)/2)
+            n1 = min(nlat, (nlon + 2)//2)
         if nlat%2:                              # nlat is odd
-            n2 = (nlat + 1)/2
+            n2 = (nlat + 1)//2
         else:
-            n2 = nlat/2
+            n2 = nlat//2
 
         if gridtype == 'regular':
             if legfunc == 'stored':
-                lshaes = (n1*n2*(nlat + nlat - n1 + 1))/2 + nlon + 15
-                lwork = 5*nlat*n2 + 3*((n1 - 2)*(nlat + nlat - n1 -1))/2
+                lshaes = (n1*n2*(nlat + nlat - n1 + 1))//2 + nlon + 15
+                lwork = 5*nlat*n2 + 3*((n1 - 2)*(nlat + nlat - n1 -1))//2
                 wshaes, ierror = _spherepack.shaesi(nlat, nlon, lshaes, lwork, nlat+1)
                 if ierror != 0:
                     msg = 'In return from call to shaesi in Spharmt.__init__ ierror =  %d' % ierror
@@ -258,13 +262,13 @@ prevent deletion of read-only instance variables.
                     raise ValueError(msg)
                 self.wshses = wshses
                 lvhaes = n1*n2*(nlat + nlat - n1 + 1) + nlon + 15
-                lwork = 3*(max(n1 -2,0)*(nlat + nlat - n1 - 1))/2 + 5*n2*nlat
+                lwork = 3*(max(n1 -2,0)*(nlat + nlat - n1 - 1))//2 + 5*n2*nlat
                 wvhaes, ierror = _spherepack.vhaesi(nlat, nlon, lvhaes, lwork, 2*(nlat+1))
                 if ierror != 0:
                     msg = 'In return from call to vhaesi in Spharmt.__init__ ierror =  %d' % ierror
                     raise ValueError(msg)
                 self.wvhaes = wvhaes
-                lwork = 3*(max(n1 - 2,0)*(nlat + nlat - n1 -1))/2 + 5*n2*nlat
+                lwork = 3*(max(n1 - 2,0)*(nlat + nlat - n1 -1))//2 + 5*n2*nlat
                 lvhses = n1*n2*(nlat + nlat - n1 + 1) + nlon + 15
                 wvhses, ierror = _spherepack.vhsesi(nlat,nlon,lvhses,lwork,2*(nlat+1))
                 if ierror != 0:
@@ -272,7 +276,7 @@ prevent deletion of read-only instance variables.
                     raise ValueError(msg)
                 self.wvhses = wvhses
             else:
-                lshaec = 2*nlat*n2+3*((n1-2)*(nlat+nlat-n1-1))/2+nlon+15
+                lshaec = 2*nlat*n2+3*((n1-2)*(nlat+nlat-n1-1))//2+nlon+15
                 wshaec, ierror = _spherepack.shaeci(nlat, nlon, lshaec, 2*(nlat+1))
                 if ierror != 0:
                     msg = 'In return from call to shaeci in Spharmt.__init__ ierror =  %d' % ierror
@@ -300,7 +304,7 @@ prevent deletion of read-only instance variables.
 
         elif gridtype == 'gaussian':
             if legfunc == 'stored':
-                lshags = nlat*(3*(n1 + n2) - 2) + (n1 - 1)*(n2*(2*nlat - n1) - 3*n1)/2 + nlon + 15
+                lshags = nlat*(3*(n1 + n2) - 2) + (n1 - 1)*(n2*(2*nlat - n1) - 3*n1)//2 + nlon + 15
                 lwork = 4*nlat*(nlat + 2) + 2
                 ldwork = nlat*(nlat + 4)
                 wshags, ierror = _spherepack.shagsi(nlat, nlon, lshags, lwork, ldwork)
@@ -314,22 +318,22 @@ prevent deletion of read-only instance variables.
                     msg = 'In return from call to shsgsi in Spharmt.__init__ ierror =  %d' % ierror
                     raise ValueError(msg)
                 self.wshsgs = wshsgs
-                lvhags = (nlat +1)*(nlat + 1)*nlat/2 +nlon + 15
-                ldwork = (3*nlat*(nlat + 3) + 2)/2
+                lvhags = (nlat +1)*(nlat + 1)*nlat//2 +nlon + 15
+                ldwork = (3*nlat*(nlat + 3) + 2)//2
                 wvhags, ierror = _spherepack.vhagsi(nlat, nlon, lvhags, ldwork)
                 if ierror != 0:
                     msg = 'In return from call to vhagsi in Spharmt.__init__ ierror =  %d' % ierror
                     raise ValueError(msg)
                 self.wvhags = wvhags
                 lvhsgs = n1*n2*(nlat + nlat - n1 +1) + nlon + 15 + 2*nlat
-                ldwork = (3*nlat*(nlat + 3) + 2)/2
+                ldwork = (3*nlat*(nlat + 3) + 2)//2
                 wvhsgs, ierror = _spherepack.vhsgsi(nlat, nlon, lvhsgs, ldwork)
                 if ierror != 0:
                     msg = 'In return from call to vhsgsi in Spharmt.__init__ ierror =  %d' % ierror
                     raise ValueError(msg)
                 self.wvhsgs = wvhsgs
             else:
-                lshagc = nlat*(2*n2+3*n1-2)+3*n1*(1-n1)/2+nlon+15
+                lshagc = nlat*(2*n2+3*n1-2)+3*n1*(1-n1)//2+nlon+15
                 wshagc, ierror = _spherepack.shagci(nlat, nlon, lshagc, nlat*(nlat+4))
                 if ierror != 0:
                     msg = 'In return from call to shagci in Spharmt.__init__ ierror =  %d' % ierror
@@ -398,9 +402,9 @@ prevent deletion of read-only instance variables.
         nlat = self.nlat
         nlon = self.nlon
         if nlat%2:                              # nlat is odd
-            n2 = (nlat + 1)/2
+            n2 = (nlat + 1)//2
         else:
-            n2 = nlat/2
+            n2 = nlat//2
 
         if len(datagrid.shape) == 2:
             nt = 1
@@ -481,9 +485,9 @@ prevent deletion of read-only instance variables.
         nlat = self.nlat
         nlon = self.nlon
         if nlat%2:                              # nlat is odd
-            n2 = (nlat + 1)/2
+            n2 = (nlat + 1)//2
         else:
-            n2 = nlat/2
+            n2 = nlat//2
 
         if len(dataspec.shape) == 1:
             nt = 1
@@ -595,9 +599,9 @@ prevent deletion of read-only instance variables.
         nlat = self.nlat
         nlon = self.nlon
         if nlat%2:                              # nlat is odd
-            n2 = (nlat + 1)/2
+            n2 = (nlat + 1)//2
         else:
-            n2 = nlat/2
+            n2 = nlat//2
         rsphere= self.rsphere
 
 # convert from geographical to math coordinates, add extra dimension
@@ -706,9 +710,9 @@ prevent deletion of read-only instance variables.
         nlat = self.nlat
         nlon = self.nlon
         if nlat%2:                              # nlat is odd
-            n2 = (nlat + 1)/2
+            n2 = (nlat + 1)//2
         else:
-            n2 = nlat/2
+            n2 = nlat//2
         rsphere= self.rsphere
 
         if len(vrtspec.shape) == 1:
