@@ -6,7 +6,10 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from tests.reference.baseline import CONTRACT_VERSION, write_snapshot
+try:  # Supports `python -m tests.reference.generate_legacy_baseline`.
+    from tests.reference.baseline import CONTRACT_VERSION, write_snapshot
+except ModuleNotFoundError:  # Supports direct script execution from the checkout.
+    from baseline import CONTRACT_VERSION, write_snapshot
 
 
 def parse_args() -> argparse.Namespace:
