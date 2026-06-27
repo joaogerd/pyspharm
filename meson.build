@@ -96,9 +96,14 @@ fixed_to_free = generator(
 )
 free_form_fortran_sources = fixed_to_free.process(fixed_form_fortran_sources)
 
+modern_fortran_sources = files(
+  'src/modern/spharm_kinds.f90',
+  'src/modern/spharm_legacy_interfaces.f90',
+)
+
 py.extension_module(
   '_spherepack',
-  [free_form_fortran_sources, spherepack_source],
+  [modern_fortran_sources, free_form_fortran_sources, spherepack_source],
   incdir_f2py / 'fortranobject.c',
   include_directories: inc_np,
   dependencies: py_dep,
