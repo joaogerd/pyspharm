@@ -1,0 +1,23 @@
+pyspharm-ng NOTICE
+===================
+
+This distribution is a maintained derivative of the historical `pyspharm`
+Python interface created by Jeff Whitaker and of the SPHEREPACK numerical
+library developed at UCAR/NCAR.
+
+SPHEREPACK-derived Fortran sources retain their original copyright notices and
+are redistributed under the UCAR/NCAR SPHEREPACK license in
+`LICENSES/UCAR-SPHEREPACK.txt`.  That license permits redistribution and
+modification in source and binary form provided its notices, conditions and
+disclaimer are preserved.
+
+The names UCAR, NCAR, the Computational and Information Systems Laboratory,
+their sponsors and contributors must not be used to endorse or promote this
+project or derivative products without prior written permission.
+
+The historical Python-binding permission notice is preserved in
+`LICENSES/PYSPHARM-LEGACY-PYTHON.txt`.  Files introduced by the maintained
+project are licensed under `LICENSES/BSD-3-Clause.txt` unless a file states
+otherwise.
+
+This notice is part of every source and binary distribution of pyspharm-ng.
