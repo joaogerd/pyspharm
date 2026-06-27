@@ -90,7 +90,7 @@ fixed_to_free = generator(
   py,
   output: '@BASENAME@.f90',
   arguments: [
-    files('tools/fortran/fixed_to_free.py'),
+    'tools/fortran/fixed_to_free.py',
     '--convert', '@INPUT@', '@OUTPUT@',
   ],
 )
