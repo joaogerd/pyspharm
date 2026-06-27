@@ -1,0 +1,36 @@
+name: Apply stage 2 compatibility migration
+
+on:
+  push:
+    branches:
+      - feature/pyspharm-ng-stage-2-packaging
+    paths:
+      - tools/maintenance/modernize_integer_division.py
+      - .github/workflows/apply-stage-2-migration.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Apply targeted compatibility migration
+        run: python tools/maintenance/modernize_integer_division.py --apply
+
+      - name: Commit generated source update
+        run: |
+          if git diff --quiet -- Lib/spharm.py; then
+            echo "No generated source update is needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Lib/spharm.py
+          git commit -m "fix: repair Python 3 workspace integer divisions"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
