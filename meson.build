@@ -49,41 +49,52 @@ spherepack_source = custom_target(
 
 inc_np = include_directories(incdir_numpy, incdir_f2py)
 
-# These free-form sources are generated deterministically from the retained
-# fixed-form provenance sources by tools/fortran/fixed_to_free.py.
-free_form_fortran_sources = [
-  'src/free_form/getlegfunc.f90',
-  'src/free_form/specintrp.f90',
-  'src/free_form/onedtotwod.f90',
-  'src/free_form/onedtotwod_vrtdiv.f90',
-  'src/free_form/twodtooned.f90',
-  'src/free_form/twodtooned_vrtdiv.f90',
-  'src/free_form/multsmoothfact.f90',
-  'src/free_form/lap.f90',
-  'src/free_form/invlap.f90',
+# The F77 provenance sources remain versioned in src/. Meson invokes the
+# deterministic converter for every source and compiles only the free-form
+# generated outputs from its private build directory.
+fixed_form_fortran_sources = files(
+  'src/getlegfunc.f',
+  'src/specintrp.f',
+  'src/onedtotwod.f',
+  'src/onedtotwod_vrtdiv.f',
+  'src/twodtooned.f',
+  'src/twodtooned_vrtdiv.f',
+  'src/multsmoothfact.f',
+  'src/lap.f',
+  'src/invlap.f',
   # SPHEREPACK sources
-  'src/free_form/gaqd.f90',
-  'src/free_form/shses.f90',
-  'src/free_form/shaes.f90',
-  'src/free_form/vhaes.f90',
-  'src/free_form/vhses.f90',
-  'src/free_form/shsgs.f90',
-  'src/free_form/shags.f90',
-  'src/free_form/vhags.f90',
-  'src/free_form/vhsgs.f90',
-  'src/free_form/sphcom.f90',
-  'src/free_form/hrfft.f90',
-  'src/free_form/shaec.f90',
-  'src/free_form/shagc.f90',
-  'src/free_form/shsec.f90',
-  'src/free_form/shsgc.f90',
-  'src/free_form/vhaec.f90',
-  'src/free_form/vhagc.f90',
-  'src/free_form/vhsec.f90',
-  'src/free_form/vhsgc.f90',
-  'src/free_form/ihgeod.f90',
-  'src/free_form/alf.f90',
-]
+  'src/gaqd.f',
+  'src/shses.f',
+  'src/shaes.f',
+  'src/vhaes.f',
+  'src/vhses.f',
+  'src/shsgs.f',
+  'src/shags.f',
+  'src/vhags.f',
+  'src/vhsgs.f',
+  'src/sphcom.f',
+  'src/hrfft.f',
+  'src/shaec.f',
+  'src/shagc.f',
+  'src/shsec.f',
+  'src/shsgc.f',
+  'src/vhaec.f',
+  'src/vhagc.f',
+  'src/vhsec.f',
+  'src/vhsgc.f',
+  'src/ihgeod.f',
+  'src/alf.f',
+)
+
+fixed_to_free = generator(
+  py,
+  output: '@BASENAME@.f90',
+  arguments: [
+    files('tools/fortran/fixed_to_free.py'),
+    '--convert', '@INPUT@', '@OUTPUT@',
+  ],
+)
+free_form_fortran_sources = fixed_to_free.process(fixed_form_fortran_sources)
 
 py.extension_module(
   '_spherepack',
