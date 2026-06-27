@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import importlib
+from importlib.metadata import version
 
 import numpy as np
 import spharm
 
 
 def test_distribution_version_is_exposed_by_compatibility_package() -> None:
-    assert spharm.__version__ == "0.1.0.dev0"
+    assert spharm.__version__ == version("pyspharm-ng")
 
 
 def test_compiled_extension_is_package_local() -> None:
