@@ -54,16 +54,17 @@ jobs:
           /tmp/pyspharm-wheel/bin/python -m pip install --upgrade pip
           /tmp/pyspharm-wheel/bin/python -m pip install dist/*.whl
           cd /tmp
-          /tmp/pyspharm-wheel/bin/python -c '
+          /tmp/pyspharm-wheel/bin/python - <<'PY'
           import importlib
           import numpy as np
           import spharm
+
           assert spharm.__version__ == "0.1.0.dev0"
           assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
           transform = spharm.Spharmt(64, 32, gridtype="gaussian")
           coefficients = transform.grdtospec(np.ones((32, 64), dtype=np.float32), 21)
           assert coefficients.shape == (253,)
-          '
+          PY
 
       - name: Verify source-distribution installation outside checkout
         run: |
@@ -71,15 +72,16 @@ jobs:
           /tmp/pyspharm-sdist/bin/python -m pip install --upgrade pip
           /tmp/pyspharm-sdist/bin/python -m pip install dist/*.tar.gz
           cd /tmp
-          /tmp/pyspharm-sdist/bin/python -c '
+          /tmp/pyspharm-sdist/bin/python - <<'PY'
           import importlib
           import numpy as np
           import spharm
+
           assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
           transform = spharm.Spharmt(64, 32, gridtype="regular")
           coefficients = transform.grdtospec(np.ones((32, 64), dtype=np.float32), 21)
           assert coefficients.shape == (253,)
-          '
+          PY
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
