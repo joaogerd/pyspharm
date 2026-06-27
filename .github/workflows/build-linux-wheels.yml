@@ -1,0 +1,50 @@
+name: Build portable Linux wheels
+
+on:
+  pull_request:
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+      - feature/pyspharm-ng-stage-5-release-engineering
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: manylinux x86_64 wheels
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up build Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install wheel builder
+        run: python -m pip install --upgrade "cibuildwheel==2.23.3"
+
+      - name: Build and test wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD: "cp310-* cp311-* cp312-*"
+          CIBW_SKIP: "pp* *-musllinux*"
+          CIBW_ARCHS_LINUX: "x86_64"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
+          CIBW_BEFORE_ALL_LINUX: "dnf install --assumeyes gcc-gfortran"
+          CIBW_TEST_COMMAND: >-
+            cd /tmp && python -c "import importlib; import numpy as np; import pyspharm; import spharm; assert importlib.import_module('spharm._spherepack').__name__ == 'spharm._spherepack'; legacy = spharm.Spharmt(64, 32, gridtype='gaussian'); assert legacy.grdtospec(np.ones((32, 64), dtype=np.float32), 21).shape == (253,); transform = pyspharm.SphericalHarmonicTransform(64, 32, grid='gaussian'); field = pyspharm.as_real32(np.ones((32, 64))); assert transform.analyze_scalar(field, truncation=21).shape == (253,)"
+
+      - name: Upload wheel artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: manylinux-x86_64-wheels-${{ github.sha }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+          retention-days: 14

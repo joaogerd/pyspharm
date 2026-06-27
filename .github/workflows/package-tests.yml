@@ -4,14 +4,11 @@ on:
   pull_request:
     branches:
       - master
-      - feature/pyspharm-ng-stage-1-foundation
-      - feature/pyspharm-ng-stage-2-packaging
-      - feature/pyspharm-ng-stage-3-fortran-modernization
+      - develop
   push:
     branches:
-      - feature/pyspharm-ng-stage-2-packaging
-      - feature/pyspharm-ng-stage-3-fortran-modernization
-      - feature/pyspharm-ng-stage-4-python-api
+      - develop
+      - feature/pyspharm-ng-stage-5-release-engineering
 
 permissions:
   contents: read
