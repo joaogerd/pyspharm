@@ -1,42 +1,81 @@
-from mpl_toolkits.basemap import Basemap, addcyclic
-from spharm import Spharmt, getspecindx
-import matplotlib.pyplot as plt
+#!/usr/bin/env python3
+"""Synthesize and optionally plot one real spherical harmonic basis field.
+
+The example uses the maintained :mod:`pyspharm` API and creates no plot unless
+``--output`` or ``--show`` is requested.
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
 import numpy as np
-# set up orthographic map projection.
-map = Basemap(projection='ortho',lat_0=30,lon_0=-60,resolution='l')
-# draw coastlines, country boundaries, fill continents.
-map.drawcoastlines()
-# draw the edge of the map projection region (the projection limb)
-map.drawmapboundary()
-# draw lat/lon grid lines every 30 degrees.
-map.drawmeridians(np.arange(0,360,30))
-map.drawparallels(np.arange(-90,90,30))
-min = int(input('input degree (m) of legendre function to plot:'))
-nin = int(input('input order  (n) of legendre function to plot:'))
-nlons = 720; nlats = 361
-x = Spharmt(nlons,nlats,legfunc='computed')
-ntrunc = nlats-1
-indxm, indxn = getspecindx(ntrunc)
-nm = -1
-i = 0
-for m,n in zip(indxm,indxn):
-    if m  == min and n == nin:
-        nm = i
-        exit
-    else:
-        i = i + 1
-if nm < 0:
-    raise ValueError('invalid m,n - must fit within triangular truncation at wavenumber '+repr(ntrunc))
-coeffs = np.zeros((ntrunc+1)*(ntrunc+2)//2,np.complex128)
-coeffs[nm] = 1.
-spharmonic = x.spectogrd(coeffs)
-delta = 360./nlons
-lats = 90.-delta*np.arange(nlats)
-lons = delta*np.arange(nlons)
-spharmonic, lons = addcyclic(spharmonic, lons)
-print(spharmonic.min(), spharmonic.max())
-lons, lats = np.meshgrid(lons, lats)
-x, y = map(lons,lats)
-CS = map.contourf(x,y,spharmonic,15,cmap=plt.cm.jet)
-plt.title('Spherical Harmonic of degree %2i and order %2i'% (min,nin))
-plt.show()
+
+import pyspharm
+
+
+def coefficient_index(degree: int, order: int, truncation: int) -> int:
+    """Return the triangular-storage index for degree ``m`` and order ``n``."""
+
+    if degree < 0 or order < degree or order > truncation:
+        raise ValueError(
+            "degree and order must satisfy 0 <= degree <= order <= truncation"
+        )
+    return degree * (truncation + 1) - degree * (degree - 1) // 2 + (order - degree)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--degree", type=int, default=3, help="zonal degree m")
+    parser.add_argument("--order", type=int, default=6, help="total order n")
+    parser.add_argument("--nlon", type=int, default=360, help="longitude count")
+    parser.add_argument("--nlat", type=int, default=181, help="latitude count")
+    parser.add_argument("--output", type=Path, help="optional PNG/PDF output path")
+    parser.add_argument("--show", action="store_true", help="show an interactive plot")
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    transform = pyspharm.SphericalHarmonicTransform(
+        args.nlon, args.nlat, grid="regular", legendre="computed"
+    )
+    truncation = transform.nlat - 1
+    index = coefficient_index(args.degree, args.order, truncation)
+    coefficients = np.zeros(
+        (truncation + 1) * (truncation + 2) // 2, dtype=np.complex64, order="F"
+    )
+    coefficients[index] = np.complex64(1.0)
+    field = transform.synthesize_scalar(coefficients)
+
+    print(f"truncation={truncation}")
+    print(f"coefficient_index={index}")
+    print(f"minimum={np.min(field):.6e}")
+    print(f"maximum={np.max(field):.6e}")
+
+    if args.output is None and not args.show:
+        return
+
+    import matplotlib.pyplot as plt
+
+    longitude = np.linspace(0.0, 360.0, args.nlon, endpoint=False)
+    latitude = np.linspace(90.0, -90.0, args.nlat)
+    figure, axis = plt.subplots(figsize=(10, 4.5), constrained_layout=True)
+    image = axis.contourf(longitude, latitude, field, levels=21)
+    figure.colorbar(image, ax=axis, label="amplitude")
+    axis.set_xlabel("longitude (degrees east)")
+    axis.set_ylabel("latitude (degrees)")
+    axis.set_title(
+        f"Spherical harmonic: degree m={args.degree}, order n={args.order}"
+    )
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        figure.savefig(args.output, dpi=150)
+        print(f"figure={args.output}")
+    if args.show:
+        plt.show()
+
+
+if __name__ == "__main__":
+    main()
