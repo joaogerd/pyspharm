@@ -2,7 +2,7 @@ Requires: numpy, meson-python and gfortran.
 
 Please read LICENSE.spherepack
 
-Installation: 
+Installation:
 
 python -m build
 
@@ -28,7 +28,6 @@ USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 
-
 ## Windows Installation
 
 If you are a Windows user, you can download the original compressed package of this project. After downloading, extract the package, open a command prompt, and `cd` into the extracted directory. Then run:
@@ -36,5 +35,23 @@ If you are a Windows user, you can download the original compressed package of t
 ```bash
 python windows_installer.py
 ```
+
 Follow the prompts to complete the installation.
 
+## Maintained-fork modernization
+
+This repository is being prepared as the foundation for an independently
+maintained distribution, tentatively named **pyspharm-ng**. The staged plan is
+in [docs/modernization/README.md](docs/modernization/README.md).
+
+Stage 1 preserves the provenance and licensing of the legacy code and defines
+a numerical reference contract before changes to the packaging, Python API or
+Fortran implementation. See:
+
+- [mixed-license overview](LICENSE);
+- [third-party notices](NOTICE);
+- [scientific baseline contract](docs/modernization/01-scientific-baseline.md).
+
+The current root documentation remains historical and will be replaced during
+the packaging modernization stage. Until then, do not interpret this branch as
+a new PyPI release.
