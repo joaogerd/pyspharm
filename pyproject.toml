@@ -4,7 +4,7 @@ build-backend = "mesonpy"
 
 [project]
 name = "pyspharm-ng"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Maintained Python interface to SPHEREPACK spherical harmonic transforms"
 readme = "README.md"
 requires-python = ">=3.10"
