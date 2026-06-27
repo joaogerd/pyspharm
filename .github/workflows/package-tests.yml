@@ -55,6 +55,10 @@ jobs:
       - name: Build wheel and source distribution
         run: python -m build
 
+      - name: Verify examples in source distribution
+        run: |
+          tar tzf dist/*.tar.gz | grep -E '/examples/(README|regrid_test.py|geodesic.py|spharmonic.py|galewskyetal_testcase.py)$'
+
       - name: Verify wheel installation outside checkout
         run: |
           python -m venv /tmp/pyspharm-wheel
@@ -78,6 +82,8 @@ jobs:
           transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
           field = pyspharm.as_real32(np.ones((32, 64)))
           assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="regular")
+          assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
 
       - name: Verify source-distribution installation outside checkout
@@ -103,6 +109,8 @@ jobs:
           transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="regular")
           field = pyspharm.as_real32(np.ones((32, 64)))
           assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="gaussian")
+          assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
 
       - name: Upload distributions
@@ -161,4 +169,6 @@ jobs:
           transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
           field = pyspharm.as_real32(np.ones((32, 64)))
           assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="regular")
+          assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
