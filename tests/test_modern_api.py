@@ -45,15 +45,17 @@ def test_wind_api_delegates_to_legacy_vector_transforms(transform):
 def test_precision_boundary_is_explicit(transform):
     field64 = np.ones((32, 64), dtype=np.float64)
 
-    with pytest.raises(pyspharm.PrecisionError, match="float32"):
+    with pytest.raises(pyspharm.PrecisionError, match="as_real32"):
         transform.analyze_scalar(field64)
 
     native_field = pyspharm.as_real32(field64)
     coefficients = transform.analyze_scalar(native_field, truncation=21)
+    native_coefficients = pyspharm.as_complex64(coefficients)
 
     assert native_field.dtype == np.float32
     assert native_field.flags.f_contiguous
-    assert coefficients.dtype == np.complex64
+    assert native_coefficients.dtype == np.complex64
+    assert native_coefficients.flags.f_contiguous
 
 
 def test_spectral_shape_is_checked(transform):
