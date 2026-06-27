@@ -9,12 +9,21 @@ def _configure_metadata(
     version: str,
     changelog: str,
     *,
+    meson_version: str | None = None,
     with_release_notes: bool = True,
 ) -> None:
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text(
         "[project]\n"
         f'version = "{version}"\n',
+        encoding="utf-8",
+    )
+    meson_build = tmp_path / "meson.build"
+    meson_build.write_text(
+        "project(\n"
+        "  'pyspharm-ng',\n"
+        f"  version: '{meson_version or version}',\n"
+        ")\n",
         encoding="utf-8",
     )
     changelog_path = tmp_path / "CHANGELOG.md"
@@ -26,6 +35,7 @@ def _configure_metadata(
             f"# {version}\n", encoding="utf-8"
         )
     monkeypatch.setattr(release, "PYPROJECT", pyproject)
+    monkeypatch.setattr(release, "MESON_BUILD", meson_build)
     monkeypatch.setattr(release, "CHANGELOG", changelog_path)
     monkeypatch.setattr(release, "RELEASE_NOTES_DIRECTORY", release_notes_directory)
 
@@ -65,3 +75,17 @@ def test_missing_release_notes_are_rejected(monkeypatch, tmp_path):
     errors = release.validate("v0.2.0")
 
     assert any("missing versioned release notes" in error for error in errors)
+
+
+def test_mismatched_meson_version_is_rejected(monkeypatch, tmp_path):
+    _configure_metadata(
+        monkeypatch,
+        tmp_path,
+        "0.2.0",
+        "## 0.2.0 — Released\n",
+        meson_version="0.1.9",
+    )
+
+    errors = release.validate("v0.2.0")
+
+    assert any("meson.build project version" in error for error in errors)
