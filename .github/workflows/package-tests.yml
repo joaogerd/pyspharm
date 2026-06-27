@@ -63,11 +63,15 @@ jobs:
           cd /tmp
           /tmp/pyspharm-wheel/bin/python - <<'PY'
           import importlib
+          from importlib.metadata import version
+
           import numpy as np
           import pyspharm
           import spharm
 
-          assert spharm.__version__ == "0.1.0.dev0"
+          expected = version("pyspharm-ng")
+          assert spharm.__version__ == expected
+          assert pyspharm.__version__ == expected
           assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
           legacy = spharm.Spharmt(64, 32, gridtype="gaussian")
           assert legacy.grdtospec(np.ones((32, 64), dtype=np.float32), 21).shape == (253,)
@@ -84,10 +88,15 @@ jobs:
           cd /tmp
           /tmp/pyspharm-sdist/bin/python - <<'PY'
           import importlib
+          from importlib.metadata import version
+
           import numpy as np
           import pyspharm
           import spharm
 
+          expected = version("pyspharm-ng")
+          assert spharm.__version__ == expected
+          assert pyspharm.__version__ == expected
           assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
           legacy = spharm.Spharmt(64, 32, gridtype="regular")
           assert legacy.grdtospec(np.ones((32, 64), dtype=np.float32), 21).shape == (253,)
