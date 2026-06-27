@@ -20,7 +20,11 @@ from spharm import gaussian_lats_wts, getgeodesicpts, legendre, specintrp
 
 
 def rossby_haurwitz_wave(
-    wavenumber: float, angular_velocity: float, radius: float, latitude: np.ndarray, longitude: np.ndarray
+    wavenumber: float,
+    angular_velocity: float,
+    radius: float,
+    latitude: np.ndarray,
+    longitude: np.ndarray,
 ) -> np.ndarray:
     """Return a deterministic Rossby--Haurwitz streamfunction field."""
 
@@ -97,7 +101,7 @@ def main() -> None:
         gaussian_nlon, gaussian_nlat, radius=radius, grid="gaussian"
     )
     regular_field = pyspharm.regrid_scalar(
-        gaussian_transform, gaussian_transform if False else regular_transform, gaussian_field
+        gaussian_transform, regular_transform, gaussian_field
     )
 
     regridding_error = normalized_error(regular_field, regular_exact)
