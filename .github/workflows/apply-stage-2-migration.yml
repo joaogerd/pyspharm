@@ -1,10 +1,11 @@
 name: Apply stage 2 compatibility migration
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/pyspharm-ng-stage-2-packaging
+      - feature/pyspharm-ng-stage-1-foundation
     paths:
+      - Lib/spharm.py
       - tools/maintenance/modernize_integer_division.py
       - .github/workflows/apply-stage-2-migration.yml
 
@@ -13,12 +14,13 @@ permissions:
 
 jobs:
   migrate:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - name: Check out branch
+      - name: Check out source branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.head_ref }}
 
       - name: Apply targeted compatibility migration
         run: python tools/maintenance/modernize_integer_division.py --apply
@@ -33,4 +35,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Lib/spharm.py
           git commit -m "fix: repair Python 3 workspace integer divisions"
-          git push origin HEAD:${GITHUB_REF#refs/heads/}
+          git push origin HEAD:${{ github.head_ref }}
