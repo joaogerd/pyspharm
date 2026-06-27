@@ -17,9 +17,11 @@ def _source_field(nlat: int, nlon: int) -> np.ndarray:
 def test_regrid_scalar_matches_legacy_engine():
     source = pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
     destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="regular")
+    legacy_source = spharm.Spharmt(64, 32, gridtype="gaussian")
+    legacy_destination = spharm.Spharmt(48, 25, gridtype="regular")
     field = _source_field(source.nlat, source.nlon)
 
-    expected = spharm.regrid(source._legacy, destination._legacy, field, ntrunc=20)
+    expected = spharm.regrid(legacy_source, legacy_destination, field, ntrunc=20)
     actual = pyspharm.regrid_scalar(source, destination, field, truncation=20)
 
     assert actual.dtype == np.float32
