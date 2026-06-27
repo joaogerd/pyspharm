@@ -1,0 +1,114 @@
+name: Test package distributions
+
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+  push:
+    branches:
+      - develop
+      - feature/pyspharm-ng-stage-5-release-engineering
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Verify Python 3 compatibility migration
+        run: python tools/maintenance/modernize_integer_division.py --check
+
+      - name: Validate fixed-to-free Fortran conversion
+        run: python tools/fortran/fixed_to_free.py --validate
+
+      - name: Install Fortran compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gfortran
+
+      - name: Install test and build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build ".[tests]"
+
+      - name: Run source and legacy-contract tests
+        run: |
+          python -m pytest
+          python tests/reference/validate_legacy_baseline.py
+
+      - name: Build wheel and source distribution
+        run: python -m build
+
+      - name: Verify wheel installation outside checkout
+        run: |
+          python -m venv /tmp/pyspharm-wheel
+          /tmp/pyspharm-wheel/bin/python -m pip install --upgrade pip
+          /tmp/pyspharm-wheel/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/pyspharm-wheel/bin/python - <<'PY'
+          import importlib
+          from importlib.metadata import version
+
+          import numpy as np
+          import pyspharm
+          import spharm
+
+          expected = version("pyspharm-ng")
+          assert spharm.__version__ == expected
+          assert pyspharm.__version__ == expected
+          assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
+          legacy = spharm.Spharmt(64, 32, gridtype="gaussian")
+          assert legacy.grdtospec(np.ones((32, 64), dtype=np.float32), 21).shape == (253,)
+          transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
+          field = pyspharm.as_real32(np.ones((32, 64)))
+          assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          PY
+
+      - name: Verify source-distribution installation outside checkout
+        run: |
+          python -m venv /tmp/pyspharm-sdist
+          /tmp/pyspharm-sdist/bin/python -m pip install --upgrade pip
+          /tmp/pyspharm-sdist/bin/python -m pip install dist/*.tar.gz
+          cd /tmp
+          /tmp/pyspharm-sdist/bin/python - <<'PY'
+          import importlib
+          from importlib.metadata import version
+
+          import numpy as np
+          import pyspharm
+          import spharm
+
+          expected = version("pyspharm-ng")
+          assert spharm.__version__ == expected
+          assert pyspharm.__version__ == expected
+          assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
+          legacy = spharm.Spharmt(64, 32, gridtype="regular")
+          assert legacy.grdtospec(np.ones((32, 64), dtype=np.float32), 21).shape == (253,)
+          transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="regular")
+          field = pyspharm.as_real32(np.ones((32, 64)))
+          assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          PY
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions-py${{ matrix.python }}-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
