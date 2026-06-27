@@ -11,6 +11,12 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+EXAMPLES = (
+    "regrid_test.py",
+    "geodesic.py",
+    "spharmonic.py",
+    "galewskyetal_testcase.py",
+)
 
 
 @pytest.mark.parametrize(
@@ -60,3 +66,10 @@ def test_example_runs_without_plot(arguments: tuple[str, ...], expected_output: 
     )
 
     assert expected_output in completed.stdout
+
+
+def test_examples_use_maintained_public_api_only():
+    for filename in EXAMPLES:
+        content = (ROOT / "examples" / filename).read_text(encoding="utf-8")
+        assert "from spharm import" not in content
+        assert "import spharm" not in content
