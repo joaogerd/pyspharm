@@ -10,7 +10,7 @@ on:
       - master
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   capture:
@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,6 +45,31 @@ jobs:
             --output reference-artifact/legacy-contract-v1.npz
           python tests/reference/validate_legacy_baseline.py \
             --reference reference-artifact/legacy-contract-v1.npz
+
+      - name: Bootstrap committed reference
+        if: github.event_name == 'pull_request'
+        run: |
+          target=tests/reference/data/legacy-contract-v1.npz
+          if test -e "$target"; then
+            echo "Reviewed reference already exists; no bootstrap commit needed."
+            exit 0
+          fi
+          mkdir -p "$(dirname "$target")"
+          cp reference-artifact/legacy-contract-v1.npz "$target"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$target"
+          git commit -m "test: capture legacy numerical contract v1"
+          git push origin HEAD:${{ github.head_ref }}
+
+      - name: Validate committed reference when available
+        run: |
+          target=tests/reference/data/legacy-contract-v1.npz
+          if test -f "$target"; then
+            python tests/reference/validate_legacy_baseline.py --reference "$target"
+          else
+            echo "Reference bootstrap will be committed by the pull-request run."
+          fi
 
       - name: Upload candidate reference
         uses: actions/upload-artifact@v4
