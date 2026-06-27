@@ -53,9 +53,7 @@ def validate(tag: str) -> list[str]:
 
     release_notes = RELEASE_NOTES_DIRECTORY / f"{version}.md"
     if not release_notes.is_file():
-        errors.append(
-            f"missing versioned release notes: {release_notes.relative_to(ROOT)}"
-        )
+        errors.append(f"missing versioned release notes: docs/releases/{version}.md")
 
     return errors
 
@@ -84,5 +82,4 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__ == "__main__":n    raise SystemExit(main())
