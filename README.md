@@ -36,8 +36,7 @@ method mapping and migration boundary.
 
 ## Installation
 
-Published wheels will be available in a later release. Until then, install
-from a source checkout with a supported Python and a Fortran compiler:
+Install from a source checkout with a supported Python and a Fortran compiler:
 
 ```bash
 python -m pip install --upgrade pip
@@ -47,12 +46,28 @@ python -m pip install .
 The build uses the PEP 517 Meson backend. A source installation requires a
 working C compiler and `gfortran` (or a compatible Fortran compiler).
 
-For development and tests:
+## Development and tests
+
+Editable development builds must use the build dependencies installed in the
+active Python environment:
 
 ```bash
-python -m pip install -e ".[tests]"
+python -m pip install --upgrade \
+  "numpy>=1.26" \
+  "meson-python>=0.15" \
+  "meson>=1.1" \
+  ninja \
+  "pytest>=8" \
+  "hypothesis[numpy]>=6.100"
+
+python -m pip install --no-build-isolation -e ".[tests]"
 python -m pytest
 ```
+
+Do not use an isolated editable build for this F2PY extension: its deferred
+Meson rebuild needs the NumPy headers and F2PY sources to remain available
+within the active environment. The full recovery procedure and build rationale
+are in [the development guide](docs/development.md).
 
 To build distributable artifacts:
 
@@ -61,8 +76,8 @@ python -m pip install build
 python -m build
 ```
 
-The project CI installs both the generated wheel and the source distribution
-into clean virtual environments and runs an import-and-transform smoke test.
+The project CI installs the wheel and source distribution into clean virtual
+environments, and separately checks the supported editable-install workflow.
 
 ## Compatibility contract
 
@@ -90,4 +105,6 @@ BSD 3-Clause license unless stated otherwise. Read [LICENSE](LICENSE) and
 The modernization plan is tracked in [docs/modernization/README.md](docs/modernization/README.md).
 Stages 2 and 3 establish modern packaging, compatibility and a free-form
 Fortran build path. Stage 4 adds the maintained `pyspharm` API while preserving
-`spharm` for existing applications.
+`spharm` for existing applications. Stage 5 adds portable Linux-wheel and
+GitHub-release workflows; the supported platform scope is defined in
+[the release policy](docs/release-policy.md).

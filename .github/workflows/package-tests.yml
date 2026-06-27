@@ -112,3 +112,53 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 14
+
+  editable:
+    name: Editable install (Python 3.12)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Fortran compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gfortran
+
+      - name: Install persistent editable-build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade \
+            "numpy>=1.26" \
+            "meson>=1.1" \
+            "meson-python>=0.15" \
+            ninja \
+            "pytest>=8" \
+            "hypothesis[numpy]>=6.100"
+
+      - name: Install editable package without build isolation
+        run: python -m pip install --no-build-isolation -e ".[tests]"
+
+      - name: Import and exercise editable package outside checkout
+        run: |
+          cd /tmp
+          python - <<'PY'
+          import importlib
+
+          import numpy as np
+          import pyspharm
+          import spharm
+
+          assert importlib.import_module("spharm._spherepack").__name__ == "spharm._spherepack"
+          legacy = spharm.Spharmt(64, 32, gridtype="gaussian")
+          assert legacy.grdtospec(np.ones((32, 64), dtype=np.float32), 21).shape == (253,)
+          transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
+          field = pyspharm.as_real32(np.ones((32, 64)))
+          assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          PY

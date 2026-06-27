@@ -3,8 +3,8 @@
 
 The check is intentionally dependency-free so it can run in a release job
 before the package is installed. Stable releases use an exact PEP 440 final
-version such as ``0.1.0``, a matching Git tag such as ``v0.1.0``, and a
-versioned release-notes document.
+version such as ``0.1.0``, a matching Git tag such as ``v0.1.0``, a matching
+Meson project version, and a versioned release-notes document.
 """
 
 from __future__ import annotations
@@ -16,18 +16,29 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 PYPROJECT = ROOT / "pyproject.toml"
+MESON_BUILD = ROOT / "meson.build"
 CHANGELOG = ROOT / "CHANGELOG.md"
 RELEASE_NOTES_DIRECTORY = ROOT / "docs" / "releases"
 FINAL_VERSION = re.compile(r"^\d+\.\d+\.\d+$")
 PROJECT_VERSION = re.compile(r'^version\s*=\s*"(?P<version>[^"]+)"\s*$', re.MULTILINE)
+MESON_VERSION = re.compile(r"^\s*version\s*:\s*'(?P<version>[^']+)'\s*,?\s*$", re.MULTILINE)
 
 
 def project_version() -> str:
-    """Read the static project version without importing build dependencies."""
+    """Read the static PEP 621 version without importing build dependencies."""
 
     match = PROJECT_VERSION.search(PYPROJECT.read_text(encoding="utf-8"))
     if match is None:
         raise ValueError("could not locate [project].version in pyproject.toml")
+    return match.group("version")
+
+
+def meson_version() -> str:
+    """Read the project version used by Meson during extension compilation."""
+
+    match = MESON_VERSION.search(MESON_BUILD.read_text(encoding="utf-8"))
+    if match is None:
+        raise ValueError("could not locate project version in meson.build")
     return match.group("version")
 
 
@@ -45,6 +56,11 @@ def validate(tag: str) -> list[str]:
     if tag != expected_tag:
         errors.append(
             f"tag {tag!r} does not match project version; expected {expected_tag!r}"
+        )
+    if meson_version() != version:
+        errors.append(
+            "meson.build project version does not match pyproject.toml version "
+            f"{version!r}"
         )
 
     changelog = CHANGELOG.read_text(encoding="utf-8")
