@@ -95,6 +95,7 @@ jobs:
           destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="regular")
           assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
+          /tmp/pyspharm-wheel/bin/python "$GITHUB_WORKSPACE/tools/release/smoke_test.py"
 
       - name: Verify source-distribution installation outside checkout
         run: |
@@ -122,6 +123,7 @@ jobs:
           destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="gaussian")
           assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
+          /tmp/pyspharm-sdist/bin/python "$GITHUB_WORKSPACE/tools/release/smoke_test.py"
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
@@ -182,3 +184,4 @@ jobs:
           destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="regular")
           assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
+          python "$GITHUB_WORKSPACE/tools/release/smoke_test.py"
