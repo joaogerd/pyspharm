@@ -3,7 +3,7 @@
 This directory records the staged modernization of the historical `pyspharm`
 code base into a maintained, redistributable scientific package.
 
-The work is deliberately incremental.  Numerical correctness and compatibility
+The work is deliberately incremental. Numerical correctness and compatibility
 with the legacy SPHEREPACK-based implementation take precedence over stylistic
 or performance changes.
 
@@ -34,7 +34,18 @@ or performance changes.
 6. **Stable release**
    - publish a documented stable release once supported platforms and the
      numerical compatibility contract are continuously verified.
+7. **Scientific API and executable examples**
+   - expose frequently used legacy diagnostics, scalar regridding, grid
+     metadata and point interpolation through the validated `pyspharm`
+     interface;
+   - preserve the explicit single-precision boundary and the Stage 1 numerical
+     contract;
+   - make representative scientific examples executable, parameterized and
+     smoke-tested without optional plotting dependencies or compatibility-module
+     imports;
+   - add further API parity only through independent documentation and
+     equivalence tests.
 
-Each stage is accepted only when its scope is tested and documented.  Later
+Each stage is accepted only when its scope is tested and documented. Later
 stages may refine implementation details but must not silently weaken the
 scientific reference contract created in stage 1.

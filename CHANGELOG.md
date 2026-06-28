@@ -3,7 +3,25 @@
 All notable changes to the maintained `pyspharm-ng` distribution are recorded
 here. Historical `pyspharm` releases predate this changelog.
 
-## 0.1.1.dev0 — Unreleased
+## 0.2.0 — 2026-06-27
+
+### Added
+
+- `SphericalHarmonicTransform.gradient` for zonal and meridional gradients
+  synthesized from scalar spectral coefficients.
+- `SphericalHarmonicTransform.streamfunction_velocity_potential` for
+  streamfunction and velocity-potential diagnostics from horizontal wind.
+- `pyspharm.regrid_scalar` for validated scalar spectral regridding between
+  maintained transform configurations.
+- `pyspharm.gaussian_latitudes_weights`, `pyspharm.spectral_indices`,
+  `pyspharm.geodesic_points` and `pyspharm.interpolate_scalar` as maintained
+  grid-metadata and point-interpolation utilities.
+- Executable, command-line examples for regridding, geodesic points, a
+  spherical-harmonic field and the Galewsky shallow-water case.
+- Example smoke tests that run without an optional plotting dependency.
+- Stage 7 documentation and equivalence tests against the legacy compatibility
+  engine on regular and Gaussian grids.
+- JUnit source-test reports retained as CI artifacts for diagnostic failures.
 
 ### Fixed
 

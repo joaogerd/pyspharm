@@ -79,6 +79,22 @@ python -m build
 The project CI installs the wheel and source distribution into clean virtual
 environments, and separately checks the supported editable-install workflow.
 
+## Examples
+
+The repository contains executable numerical examples for scalar regridding,
+icosahedral geodesics, spherical harmonics and the Galewsky shallow-water test
+case. Their numerical modes run without a plotting dependency; figures are
+opt-in through `--output` or `--show`.
+
+```bash
+python -m pip install --no-build-isolation -e ".[examples]"
+python examples/regrid_test.py --small
+python examples/spharmonic.py --degree 3 --order 6 --output harmonic.png
+```
+
+See [examples/README](examples/README) for all commands and the precision
+contract used by the examples.
+
 ## Compatibility contract
 
 The current numerical implementation is preserved as a documented legacy
@@ -106,5 +122,6 @@ The modernization plan is tracked in [docs/modernization/README.md](docs/moderni
 Stages 2 and 3 establish modern packaging, compatibility and a free-form
 Fortran build path. Stage 4 adds the maintained `pyspharm` API while preserving
 `spharm` for existing applications. Stage 5 adds portable Linux-wheel and
-GitHub-release workflows; the supported platform scope is defined in
+GitHub-release workflows; Stage 7 adds validated scientific diagnostics and
+executable examples. The supported platform scope is defined in
 [the release policy](docs/release-policy.md).

@@ -47,13 +47,27 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build ".[tests]"
 
-      - name: Run source and legacy-contract tests
-        run: |
-          python -m pytest
-          python tests/reference/validate_legacy_baseline.py
+      - name: Run source tests
+        run: python -m pytest --junitxml=test-results/pytest-${{ matrix.python }}.xml
+
+      - name: Validate legacy numerical contract
+        run: python tests/reference/validate_legacy_baseline.py
+
+      - name: Upload source-test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-test-report-py${{ matrix.python }}-${{ github.sha }}
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Build wheel and source distribution
         run: python -m build
+
+      - name: Verify examples in source distribution
+        run: |
+          tar tzf dist/*.tar.gz | grep -E '/examples/(README|regrid_test.py|geodesic.py|spharmonic.py|galewskyetal_testcase.py)$'
 
       - name: Verify wheel installation outside checkout
         run: |
@@ -78,7 +92,10 @@ jobs:
           transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
           field = pyspharm.as_real32(np.ones((32, 64)))
           assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="regular")
+          assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
+          /tmp/pyspharm-wheel/bin/python "$GITHUB_WORKSPACE/tools/release/smoke_test.py"
 
       - name: Verify source-distribution installation outside checkout
         run: |
@@ -103,7 +120,10 @@ jobs:
           transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="regular")
           field = pyspharm.as_real32(np.ones((32, 64)))
           assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="gaussian")
+          assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
+          /tmp/pyspharm-sdist/bin/python "$GITHUB_WORKSPACE/tools/release/smoke_test.py"
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
@@ -161,4 +181,7 @@ jobs:
           transform = pyspharm.SphericalHarmonicTransform(64, 32, grid="gaussian")
           field = pyspharm.as_real32(np.ones((32, 64)))
           assert transform.analyze_scalar(field, truncation=21).shape == (253,)
+          destination = pyspharm.SphericalHarmonicTransform(48, 25, grid="regular")
+          assert pyspharm.regrid_scalar(transform, destination, field).shape == (25, 48)
           PY
+          python "$GITHUB_WORKSPACE/tools/release/smoke_test.py"
