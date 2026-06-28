@@ -9,7 +9,7 @@ from .spharm import __doc__
 try:
     __version__ = version("pyspharm-ng")
 except PackageNotFoundError:  # Running from an unpacked source tree.
-    __version__ = "0.2.0"
+    __version__ = "0.2.1.dev0"
 
 _legacy_module.__version__ = __version__
 del _legacy_module

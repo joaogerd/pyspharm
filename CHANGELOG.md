@@ -3,6 +3,22 @@
 All notable changes to the maintained `pyspharm-ng` distribution are recorded
 here. Historical `pyspharm` releases predate this changelog.
 
+## 0.2.1.dev0 — Unreleased
+
+### Changed
+
+- Replace the compiled implementations of the low-level `lap` and `invlap`
+  spectral operators with explicit, free-form Fortran module procedures while
+  preserving the historical external F2PY symbols and single-precision ABI.
+- Keep `src/lap.f` and `src/invlap.f` as provenance-only reference sources;
+  they are no longer compiled by Meson.
+
+### Added
+
+- Analytical regression tests for Laplacian and inverse-Laplacian spectral
+  factors, including the zero global-mean convention and round-trip behavior.
+- Stage 8 documentation for the first real compiled-core modernization unit.
+
 ## 0.2.0 — 2026-06-27
 
 ### Added

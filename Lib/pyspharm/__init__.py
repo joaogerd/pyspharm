@@ -25,7 +25,7 @@ from .utilities import (
 try:
     __version__ = version("pyspharm-ng")
 except PackageNotFoundError:
-    __version__ = "0.2.0"
+    __version__ = "0.2.1.dev0"
 
 __all__ = [
     "GridConfiguration",

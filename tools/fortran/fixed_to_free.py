@@ -8,7 +8,8 @@ arithmetic, COMMON blocks, or control flow.
 
 Meson invokes this tool once per source during the build, producing temporary
 `.f90` files in the build directory. The historical `.f` files remain the
-version-controlled provenance inputs until the semantic modernization phase.
+version-controlled provenance inputs until a routine is replaced by a semantic
+modernization unit in ``src/modern``.
 """
 
 from __future__ import annotations
@@ -21,7 +22,9 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_DIRECTORY = ROOT / "src"
 
-# Keep this list aligned with the F2PY extension source list in meson.build.
+# Keep this list aligned with the fixed-form source list in meson.build.
+# Modernized routines remain under src/ as provenance but are deliberately not
+# converted or compiled through this Stage-3 compatibility path.
 SOURCES = (
     "getlegfunc.f",
     "specintrp.f",
@@ -30,8 +33,6 @@ SOURCES = (
     "twodtooned.f",
     "twodtooned_vrtdiv.f",
     "multsmoothfact.f",
-    "lap.f",
-    "invlap.f",
     "gaqd.f",
     "shses.f",
     "shaes.f",
