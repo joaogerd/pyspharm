@@ -3,7 +3,7 @@ project(
   'pyspharm-ng',
   'c',
   'fortran',
-  version: '0.1.1.dev0',
+  version: '0.2.0',
   license: ['BSD-3-Clause', 'LicenseRef-UCAR-SPHEREPACK'],
   license_files: [
     'LICENSE',
