@@ -41,22 +41,38 @@ The examples default to bounded, reproducible numerical work. Plotting is
 optional through `--output` or `--show`, and is the only feature that needs the
 `examples` optional dependency group.
 
+## Increment 7.3 — grid metadata and point interpolation
+
+The third increment completes the migration of the bundled examples away from
+direct `spharm` imports by adding:
+
+- `gaussian_latitudes_weights(nlat)` for Gaussian latitude coordinates in
+  degrees north and quadrature weights;
+- `spectral_indices(truncation)` for compact triangular coefficient metadata;
+- `geodesic_points(edge_points)` for icosahedral geodesic coordinates;
+- `interpolate_scalar(coefficients, latitude=..., longitude=...)` for one
+  scalar spectrum at one point.
+
+The utilities preserve documented legacy units and numerical values. Grid
+metadata remains `float64`, while geodesic coordinates are `float32` and point
+interpolation requires an explicit `complex64` spectral boundary. Their
+results are directly compared to their legacy counterparts.
+
 ## Scientific and compatibility boundary
 
 The diagnostic methods delegate directly to `spharm.Spharmt.getgrad` and
 `spharm.Spharmt.getpsichi`. The regridding helper delegates to
-`spharm.regrid`. None of the Stage 7 methods reimplement Laplacian inversion,
-vector spherical-harmonic analysis, spectral interpolation or synthesis in
-Python.
+`spharm.regrid`. Grid and point utilities delegate to `spharm` helpers.
+None of the Stage 7 methods reimplement Laplacian inversion, vector
+spherical-harmonic analysis, spectral interpolation or synthesis in Python.
 
 Acceptance requires modern-API outputs to agree with the corresponding legacy
 calls for regular and Gaussian test cases, while the full legacy reference
 contract continues to pass unchanged. Examples are acceptance-tested as
 executable scripts in their non-plotting mode.
 
-## Follow-on candidates
+## Follow-on candidate
 
-Later Stage 7 increments may expose spectral smoothing, Gaussian
-latitude/weight helpers, coefficient-index utilities and point interpolation.
-Each addition must be independently documented and tested against the
-compatibility engine.
+A future Stage 7 increment may expose isotropic spectral smoothing through a
+validated `SphericalHarmonicTransform` method. It should be documented and
+tested independently against `Spharmt.specsmooth` before integration.

@@ -13,6 +13,9 @@ here. Historical `pyspharm` releases predate this changelog.
   streamfunction and velocity-potential diagnostics from horizontal wind.
 - `pyspharm.regrid_scalar` for validated scalar spectral regridding between
   maintained transform configurations.
+- `pyspharm.gaussian_latitudes_weights`, `pyspharm.spectral_indices`,
+  `pyspharm.geodesic_points` and `pyspharm.interpolate_scalar` as maintained
+  grid-metadata and point-interpolation utilities.
 - Executable, command-line examples for regridding, geodesic points, a
   spherical-harmonic field and the Galewsky shallow-water case.
 - Example smoke tests that run without an optional plotting dependency.

@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from spharm import getgeodesicpts
+import pyspharm
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -30,10 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    if args.edge_points < 1:
-        raise ValueError("--edge-points must be at least 1")
-
-    latitude, longitude = getgeodesicpts(args.edge_points)
+    latitude, longitude = pyspharm.geodesic_points(args.edge_points)
     print(f"points={latitude.size}")
     print(f"latitude_range=[{np.min(latitude):.3f}, {np.max(latitude):.3f}]")
     print(f"longitude_range=[{np.min(longitude):.3f}, {np.max(longitude):.3f}]")

@@ -47,10 +47,20 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build ".[tests]"
 
-      - name: Run source and legacy-contract tests
-        run: |
-          python -m pytest
-          python tests/reference/validate_legacy_baseline.py
+      - name: Run source tests
+        run: python -m pytest --junitxml=test-results/pytest-${{ matrix.python }}.xml
+
+      - name: Validate legacy numerical contract
+        run: python tests/reference/validate_legacy_baseline.py
+
+      - name: Upload source-test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-test-report-py${{ matrix.python }}-${{ github.sha }}
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Build wheel and source distribution
         run: python -m build

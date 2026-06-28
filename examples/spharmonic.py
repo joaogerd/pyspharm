@@ -16,13 +16,17 @@ import pyspharm
 
 
 def coefficient_index(degree: int, order: int, truncation: int) -> int:
-    """Return the triangular-storage index for degree ``m`` and order ``n``."""
+    """Return the compact-storage index for zonal degree ``m`` and order ``n``."""
 
-    if degree < 0 or order < degree or order > truncation:
+    zonal_wavenumber, total_wavenumber = pyspharm.spectral_indices(truncation)
+    matches = np.flatnonzero(
+        np.logical_and(zonal_wavenumber == degree, total_wavenumber == order)
+    )
+    if matches.size != 1:
         raise ValueError(
             "degree and order must satisfy 0 <= degree <= order <= truncation"
         )
-    return degree * (truncation + 1) - degree * (degree - 1) // 2 + (order - degree)
+    return int(matches[0])
 
 
 def build_parser() -> argparse.ArgumentParser:
