@@ -11,6 +11,11 @@ here. Historical `pyspharm` releases predate this changelog.
   synthesized from scalar spectral coefficients.
 - `SphericalHarmonicTransform.streamfunction_velocity_potential` for
   streamfunction and velocity-potential diagnostics from horizontal wind.
+- `pyspharm.regrid_scalar` for validated scalar spectral regridding between
+  maintained transform configurations.
+- Executable, command-line examples for regridding, geodesic points, a
+  spherical-harmonic field and the Galewsky shallow-water case.
+- Example smoke tests that run without an optional plotting dependency.
 - Stage 7 documentation and equivalence tests against the legacy compatibility
   engine on regular and Gaussian grids.
 

@@ -1,11 +1,51 @@
-regrid_test.py tests regrid and spectral interpolation functions.
+# Examples
 
-geodesic.py, galewskyetal_testcase.py and spharmonic.py use matplotlib (http://matplotlib.sf.net).
+The examples are executable from a source checkout after installing the package.
+They use the maintained `pyspharm` API whenever an equivalent public operation
+exists. The historical `spharm` import remains only for helper routines that
+are not yet part of the maintained API.
 
-geodesic.py plots the locations on a sphere
-corresponding to a twenty-sided (icosahedral) geodesic with
-a given number of points on the side of each geodesic triangle.
+## Setup
 
-galewskyetal_testcase.py tests using spharm to integrate a shallow water model.
+For numerical examples only:
 
-spharmonic.py plots a spherical harmonic with a given order and degree.
+```bash
+python -m pip install --no-build-isolation -e ".[tests]"
+```
+
+To create figures:
+
+```bash
+python -m pip install --no-build-isolation -e ".[examples]"
+```
+
+## Commands
+
+```bash
+# Scalar spectral regridding and point interpolation.
+python examples/regrid_test.py
+python examples/regrid_test.py --small
+
+# Icosahedral geodesic points. Add --output to save a figure.
+python examples/geodesic.py --edge-points 7
+python examples/geodesic.py --edge-points 7 --output artifacts/geodesic.png
+
+# One spherical harmonic basis field.
+python examples/spharmonic.py --degree 3 --order 6
+python examples/spharmonic.py --degree 3 --order 6 --output artifacts/harmonic.png
+
+# Bounded Galewsky shallow-water case. The default is one simulated hour.
+python examples/galewskyetal_testcase.py --steps 24
+python examples/galewskyetal_testcase.py --steps 24 --output artifacts/galewsky.png
+```
+
+Plotting is opt-in: the scripts do not import matplotlib unless `--output` or
+`--show` is used. This allows numerical smoke tests to run in a minimal build
+environment.
+
+## Numerical contract
+
+Examples use the retained single-precision SPHEREPACK ABI: gridded arrays are
+`float32` and spectral arrays are `complex64`. Do not silently replace these
+with double precision when adapting an example; use `pyspharm.as_real32` and
+`pyspharm.as_complex64` explicitly at application boundaries.

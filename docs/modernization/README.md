@@ -34,13 +34,15 @@ or performance changes.
 6. **Stable release**
    - publish a documented stable release once supported platforms and the
      numerical compatibility contract are continuously verified.
-7. **Scientific diagnostic API**
-   - expose frequently used legacy diagnostics through the validated
-     `pyspharm` interface;
+7. **Scientific API and executable examples**
+   - expose frequently used legacy diagnostics and scalar regridding through
+     the validated `pyspharm` interface;
    - preserve the explicit single-precision boundary and the Stage 1 numerical
      contract;
-   - add one independently documented and equivalence-tested diagnostic at a
-     time before considering broader API parity.
+   - make representative scientific examples executable, parameterized and
+     smoke-tested without optional plotting dependencies;
+   - add further API parity only through independent documentation and
+     equivalence tests.
 
 Each stage is accepted only when its scope is tested and documented. Later
 stages may refine implementation details but must not silently weaken the

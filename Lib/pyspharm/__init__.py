@@ -14,6 +14,7 @@ from .api import (
     as_complex64,
     as_real32,
 )
+from .regrid import regrid_scalar
 
 try:
     __version__ = version("pyspharm-ng")
@@ -26,5 +27,6 @@ __all__ = [
     "SphericalHarmonicTransform",
     "as_complex64",
     "as_real32",
+    "regrid_scalar",
     "__version__",
 ]
