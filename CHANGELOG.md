@@ -3,7 +3,7 @@
 All notable changes to the maintained `pyspharm-ng` distribution are recorded
 here. Historical `pyspharm` releases predate this changelog.
 
-## 0.1.1.dev0 — Unreleased
+## 0.2.0 — 2026-06-27
 
 ### Added
 
@@ -21,6 +21,7 @@ here. Historical `pyspharm` releases predate this changelog.
 - Example smoke tests that run without an optional plotting dependency.
 - Stage 7 documentation and equivalence tests against the legacy compatibility
   engine on regular and Gaussian grids.
+- JUnit source-test reports retained as CI artifacts for diagnostic failures.
 
 ### Fixed
 
