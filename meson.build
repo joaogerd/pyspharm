@@ -3,7 +3,7 @@ project(
   'pyspharm-ng',
   'c',
   'fortran',
-  version: '0.2.0',
+  version: '0.2.1.dev0',
   license: ['BSD-3-Clause', 'LicenseRef-UCAR-SPHEREPACK'],
   license_files: [
     'LICENSE',
@@ -61,9 +61,11 @@ spherepack_source = custom_target(
 
 inc_np = include_directories(incdir_numpy, incdir_f2py)
 
-# The F77 provenance sources remain versioned in src/. Meson invokes the
-# deterministic converter for every source and compiles only the free-form
-# generated outputs from its private build directory.
+# Most F77 provenance sources remain versioned in src/. Meson converts these
+# sources deterministically and compiles the free-form outputs from its private
+# build directory. The Laplacian operators are the first intentionally replaced
+# subset: their historical sources remain as provenance, while the extension
+# compiles ABI-preserving modern implementations in src/modern/.
 fixed_form_fortran_sources = files(
   'src/getlegfunc.f',
   'src/specintrp.f',
@@ -72,8 +74,6 @@ fixed_form_fortran_sources = files(
   'src/twodtooned.f',
   'src/twodtooned_vrtdiv.f',
   'src/multsmoothfact.f',
-  'src/lap.f',
-  'src/invlap.f',
   # SPHEREPACK sources
   'src/gaqd.f',
   'src/shses.f',
@@ -114,6 +114,7 @@ free_form_fortran_sources = fixed_to_free.process(fixed_form_fortran_sources)
 
 modern_fortran_sources = files(
   'src/modern/spharm_kinds.f90',
+  'src/modern/spharm_spectral_operators.f90',
   'src/modern/spharm_legacy_interfaces.f90',
 )
 
