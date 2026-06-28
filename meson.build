@@ -63,9 +63,10 @@ inc_np = include_directories(incdir_numpy, incdir_f2py)
 
 # Most F77 provenance sources remain versioned in src/. Meson converts these
 # sources deterministically and compiles the free-form outputs from its private
-# build directory. The Laplacian operators are the first intentionally replaced
-# subset: their historical sources remain as provenance, while the extension
-# compiles ABI-preserving modern implementations in src/modern/.
+# build directory. Laplacian, inverse-Laplacian and isotropic smoothing are
+# intentionally replaced subsets: their historical sources remain as
+# provenance, while the extension compiles ABI-preserving implementations in
+# src/modern/.
 fixed_form_fortran_sources = files(
   'src/getlegfunc.f',
   'src/specintrp.f',
@@ -73,7 +74,6 @@ fixed_form_fortran_sources = files(
   'src/onedtotwod_vrtdiv.f',
   'src/twodtooned.f',
   'src/twodtooned_vrtdiv.f',
-  'src/multsmoothfact.f',
   # SPHEREPACK sources
   'src/gaqd.f',
   'src/shses.f',
