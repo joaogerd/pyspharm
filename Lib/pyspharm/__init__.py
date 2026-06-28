@@ -15,6 +15,12 @@ from .api import (
     as_real32,
 )
 from .regrid import regrid_scalar
+from .utilities import (
+    gaussian_latitudes_weights,
+    geodesic_points,
+    interpolate_scalar,
+    spectral_indices,
+)
 
 try:
     __version__ = version("pyspharm-ng")
@@ -27,6 +33,10 @@ __all__ = [
     "SphericalHarmonicTransform",
     "as_complex64",
     "as_real32",
+    "gaussian_latitudes_weights",
+    "geodesic_points",
+    "interpolate_scalar",
     "regrid_scalar",
+    "spectral_indices",
     "__version__",
 ]
