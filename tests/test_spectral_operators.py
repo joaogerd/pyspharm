@@ -70,3 +70,29 @@ def test_inverse_laplacian_undoes_laplacian_except_global_mean():
     expected[0, :] = np.complex64(0.0)
 
     np.testing.assert_allclose(restored, expected, rtol=3.0e-6, atol=3.0e-6)
+
+
+def test_spectral_smoothing_matches_total_degree_factors():
+    truncation = 4
+    coefficients = _coefficients(truncation, nt=3)
+    degrees = _coefficient_degrees(truncation).astype(np.intp)
+    smoothing = np.asarray([1.0, 0.9, 0.7, 0.4, 0.1], dtype=np.float32)
+
+    actual = _spherepack.multsmoothfact(coefficients, smoothing)
+    expected = np.asfortranarray(
+        smoothing[degrees, None] * coefficients,
+        dtype=np.complex64,
+    )
+
+    assert actual.dtype == np.complex64
+    assert actual.flags.f_contiguous
+    np.testing.assert_allclose(actual, expected, rtol=0.0, atol=0.0)
+
+
+def test_spectral_smoothing_preserves_coefficients_for_unit_factors():
+    coefficients = _coefficients(truncation=5, nt=2)
+    smoothing = np.ones(6, dtype=np.float32)
+
+    actual = _spherepack.multsmoothfact(coefficients, smoothing)
+
+    np.testing.assert_array_equal(actual, coefficients)
