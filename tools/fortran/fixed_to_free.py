@@ -26,9 +26,7 @@ SOURCE_DIRECTORY = ROOT / "src"
 # Modernized routines remain under src/ as provenance but are deliberately not
 # converted or compiled through this Stage-3 compatibility path.
 SOURCES = (
-    "onedtotwod.f",
     "onedtotwod_vrtdiv.f",
-    "twodtooned.f",
     "twodtooned_vrtdiv.f",
     "gaqd.f",
     "shses.f",
