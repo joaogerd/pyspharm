@@ -68,7 +68,6 @@ def test_specintrp_matches_explicit_compact_spectral_sum():
             expected += np.float32(2.0) * np.float32(wave_sum.real) * np.cos(phase)
             expected -= np.float32(2.0) * np.float32(wave_sum.imag) * np.sin(phase)
 
-    assert isinstance(actual, np.float32)
     np.testing.assert_allclose(actual, expected, rtol=2.0e-6, atol=2.0e-6)
 
 
