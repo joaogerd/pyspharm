@@ -13,8 +13,12 @@ here. Historical `pyspharm` releases predate this changelog.
 - Replace the compiled implementation of `multsmoothfact` with an explicit,
   free-form Fortran module procedure while preserving its F2PY symbol and
   compact spectral ordering.
-- Keep `src/lap.f`, `src/invlap.f` and `src/multsmoothfact.f` as
-  provenance-only reference sources; they are no longer compiled by Meson.
+- Replace the compiled `getlegfunc` and `specintrp` adapters with explicit,
+  free-form Fortran procedures while preserving their F2PY call signatures,
+  compact ordering and delegation to the established Legendre kernels.
+- Keep `src/lap.f`, `src/invlap.f`, `src/multsmoothfact.f`,
+  `src/getlegfunc.f` and `src/specintrp.f` as provenance-only reference
+  sources; they are no longer compiled by Meson.
 
 ### Added
 
@@ -22,6 +26,8 @@ here. Historical `pyspharm` releases predate this changelog.
   factors, including the zero global-mean convention and round-trip behavior.
 - Analytical regression tests that verify isotropic smoothing factors are
   applied by total degree across multiple spectral fields.
+- Independent tests for normalized low-degree associated-Legendre values and
+  pointwise compact spectral synthesis.
 - Stage 8 documentation for real compiled-core modernization units.
 
 ## 0.2.0 — 2026-06-27
