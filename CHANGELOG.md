@@ -10,14 +10,19 @@ here. Historical `pyspharm` releases predate this changelog.
 - Replace the compiled implementations of the low-level `lap` and `invlap`
   spectral operators with explicit, free-form Fortran module procedures while
   preserving the historical external F2PY symbols and single-precision ABI.
-- Keep `src/lap.f` and `src/invlap.f` as provenance-only reference sources;
-  they are no longer compiled by Meson.
+- Replace the compiled implementation of `multsmoothfact` with an explicit,
+  free-form Fortran module procedure while preserving its F2PY symbol and
+  compact spectral ordering.
+- Keep `src/lap.f`, `src/invlap.f` and `src/multsmoothfact.f` as
+  provenance-only reference sources; they are no longer compiled by Meson.
 
 ### Added
 
 - Analytical regression tests for Laplacian and inverse-Laplacian spectral
   factors, including the zero global-mean convention and round-trip behavior.
-- Stage 8 documentation for the first real compiled-core modernization unit.
+- Analytical regression tests that verify isotropic smoothing factors are
+  applied by total degree across multiple spectral fields.
+- Stage 8 documentation for real compiled-core modernization units.
 
 ## 0.2.0 — 2026-06-27
 

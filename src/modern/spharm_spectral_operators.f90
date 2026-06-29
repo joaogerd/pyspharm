@@ -1,9 +1,10 @@
 ! ABI-preserving modern implementation of scalar spectral operators.
 !
-! The F2PY-facing external symbols remain ``lap`` and ``invlap`` below. Their
-! implementations delegate to explicit module procedures so downstream Python
-! and Fortran callers retain the historical ABI while this subset gains modern
-! declarations, kinds and testable internal structure.
+! The F2PY-facing external symbols remain ``lap``, ``invlap`` and
+! ``multsmoothfact`` below. Their implementations delegate to explicit module
+! procedures so downstream Python and Fortran callers retain the historical ABI
+! while this subset gains modern declarations, kinds and testable internal
+! structure.
 module spharm_spectral_operators
   use spharm_kinds, only : int32, real32
   implicit none
@@ -11,6 +12,7 @@ module spharm_spectral_operators
 
   public :: apply_laplacian
   public :: apply_inverse_laplacian
+  public :: apply_spectral_smoothing
 
 contains
 
@@ -95,6 +97,41 @@ contains
     end do
   end subroutine apply_inverse_laplacian
 
+
+  subroutine apply_spectral_smoothing(dataspec, dataspec_smooth, smooth, nlat, nmdim, nt)
+    ! Apply one isotropic factor per total spherical-harmonic degree.
+    !
+    ! ``smooth(1)`` applies to the global mean (degree zero), preserving the
+    ! historical Fortran indexing convention exposed through F2PY.
+    integer(int32), intent(in) :: nlat
+    integer(int32), intent(in) :: nmdim
+    integer(int32), intent(in) :: nt
+    complex(real32), intent(in) :: dataspec(nmdim, nt)
+    complex(real32), intent(out) :: dataspec_smooth(nmdim, nt)
+    real(real32), intent(in) :: smooth(nlat)
+
+    integer(int32) :: coefficient_index
+    integer(int32) :: field_index
+    integer(int32) :: nm_start
+    integer(int32) :: ntrunc
+    integer(int32) :: total_degree
+    integer(int32) :: zonal_degree
+
+    ntrunc = triangular_truncation(nmdim)
+
+    do field_index = 1_int32, nt
+      nm_start = 0_int32
+      do zonal_degree = 0_int32, ntrunc
+        do total_degree = zonal_degree, ntrunc
+          coefficient_index = nm_start + total_degree - zonal_degree + 1_int32
+          dataspec_smooth(coefficient_index, field_index) = &
+            dataspec(coefficient_index, field_index) * smooth(total_degree + 1_int32)
+        end do
+        nm_start = nm_start + ntrunc - zonal_degree + 1_int32
+      end do
+    end do
+  end subroutine apply_spectral_smoothing
+
 end module spharm_spectral_operators
 
 
@@ -128,3 +165,20 @@ subroutine invlap(dataspec, dataspec_ilap, nmdim, nt, rsphere)
 
   call apply_inverse_laplacian(dataspec, dataspec_ilap, nmdim, nt, rsphere)
 end subroutine invlap
+
+
+subroutine multsmoothfact(dataspec, dataspec_smooth, smooth, nlat, nmdim, nt)
+  ! External compatibility wrapper retained for F2PY and downstream callers.
+  use spharm_kinds, only : int32, real32
+  use spharm_spectral_operators, only : apply_spectral_smoothing
+  implicit none
+
+  integer(int32), intent(in) :: nlat
+  integer(int32), intent(in) :: nmdim
+  integer(int32), intent(in) :: nt
+  complex(real32), intent(in) :: dataspec(nmdim, nt)
+  complex(real32), intent(out) :: dataspec_smooth(nmdim, nt)
+  real(real32), intent(in) :: smooth(nlat)
+
+  call apply_spectral_smoothing(dataspec, dataspec_smooth, smooth, nlat, nmdim, nt)
+end subroutine multsmoothfact

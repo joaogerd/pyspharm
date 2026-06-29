@@ -32,7 +32,6 @@ SOURCES = (
     "onedtotwod_vrtdiv.f",
     "twodtooned.f",
     "twodtooned_vrtdiv.f",
-    "multsmoothfact.f",
     "gaqd.f",
     "shses.f",
     "shaes.f",
