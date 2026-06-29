@@ -61,6 +61,26 @@ In the Python-facing array, `smooth[0]` applies to the global mean (degree
 zero). The operation remains single precision and does not alter truncation,
 coefficient ordering, or field count.
 
+## Increment 8.3 — pointwise Legendre interpolation adapters
+
+This increment replaces the compiled implementations of `getlegfunc` and
+`specintrp`. The historical `src/getlegfunc.f` and `src/specintrp.f` remain as
+provenance, but Meson no longer converts or compiles them.
+
+The maintained replacement is `src/modern/spharm_point_interpolation.f90`:
+
+- `getlegfunc` retains its F2PY call signature and compact triangular output;
+- it explicitly converts latitude in degrees to colatitude in radians, then
+  delegates individual normalized associated-Legendre evaluations to the
+  established `alfk` and `lfpt` kernels;
+- `specintrp` retains its F2PY call signature and sums each zonal wave before
+  reconstructing the real scalar value at a longitude in radians;
+- the historical single-precision arithmetic and coefficient ordering are
+  preserved; the complex-to-real result conversion is explicit.
+
+The adapters therefore become maintained Fortran without attempting to
+reimplement the well-tested SPHEREPACK Legendre kernel in the same change.
+
 ## Verification
 
 `tests/test_spectral_operators.py` checks:
@@ -72,6 +92,13 @@ coefficient ordering, or field count.
 - smoothing factors applied by total degree across multiple spectral fields;
 - identity behavior when every smoothing factor is one.
 
+`tests/test_point_interpolation.py` checks:
+
+- normalized degree 0 and degree 1 associated-Legendre values at multiple
+  latitudes;
+- compact spectral synthesis against an independently assembled complex sum;
+- longitude independence of the degree-zero component.
+
 The normal CI matrix also compiles the F2PY extension, runs the complete
 regression suite, validates `legacy-contract-v1`, installs wheel and sdist
 artifacts outside the checkout, and runs manylinux wheel tests.
@@ -81,8 +108,6 @@ artifacts outside the checkout, and runs manylinux wheel tests.
 Future Stage 8 increments should modernize only similarly isolated routines.
 The likely order is:
 
-1. `getlegfunc` and `specintrp` — associated-Legendre values and point
-   interpolation;
-2. compact/expanded spectral-array conversion helpers;
-3. larger SPHEREPACK kernels only after the smaller routines establish the
+1. compact/expanded spectral-array conversion helpers;
+2. larger SPHEREPACK kernels only after the smaller routines establish the
    wrapper and verification pattern.
