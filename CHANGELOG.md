@@ -16,9 +16,13 @@ here. Historical `pyspharm` releases predate this changelog.
 - Replace the compiled `getlegfunc` and `specintrp` adapters with explicit,
   free-form Fortran procedures while preserving their F2PY call signatures,
   compact ordering and delegation to the established Legendre kernels.
+- Replace the compiled `onedtotwod` and `twodtooned` scalar storage adapters
+  with explicit, free-form Fortran procedures while preserving their F2PY
+  symbols, triangular layout and historical scaling.
 - Keep `src/lap.f`, `src/invlap.f`, `src/multsmoothfact.f`,
-  `src/getlegfunc.f` and `src/specintrp.f` as provenance-only reference
-  sources; they are no longer compiled by Meson.
+  `src/getlegfunc.f`, `src/specintrp.f`, `src/onedtotwod.f` and
+  `src/twodtooned.f` as provenance-only reference sources; they are no longer
+  compiled by Meson.
 
 ### Added
 
@@ -28,6 +32,8 @@ here. Historical `pyspharm` releases predate this changelog.
   applied by total degree across multiple spectral fields.
 - Independent tests for normalized low-degree associated-Legendre values and
   pointwise compact spectral synthesis.
+- Regression tests for scalar compact/expanded storage mapping, historical
+  scaling and exact round trips across multiple fields.
 - Stage 8 documentation for real compiled-core modernization units.
 
 ## 0.2.0 — 2026-06-27
