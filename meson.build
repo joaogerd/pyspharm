@@ -63,13 +63,11 @@ inc_np = include_directories(incdir_numpy, incdir_f2py)
 
 # Most F77 provenance sources remain versioned in src/. Meson converts these
 # sources deterministically and compiles the free-form outputs from its private
-# build directory. Laplacian, inverse-Laplacian and isotropic smoothing are
-# intentionally replaced subsets: their historical sources remain as
-# provenance, while the extension compiles ABI-preserving implementations in
-# src/modern/.
+# build directory. Laplacian, inverse-Laplacian, isotropic smoothing and the
+# pointwise Legendre/interpolation adapters are intentionally replaced subsets:
+# their historical sources remain as provenance, while the extension compiles
+# ABI-preserving implementations in src/modern/.
 fixed_form_fortran_sources = files(
-  'src/getlegfunc.f',
-  'src/specintrp.f',
   'src/onedtotwod.f',
   'src/onedtotwod_vrtdiv.f',
   'src/twodtooned.f',
@@ -114,8 +112,9 @@ free_form_fortran_sources = fixed_to_free.process(fixed_form_fortran_sources)
 
 modern_fortran_sources = files(
   'src/modern/spharm_kinds.f90',
-  'src/modern/spharm_spectral_operators.f90',
   'src/modern/spharm_legacy_interfaces.f90',
+  'src/modern/spharm_spectral_operators.f90',
+  'src/modern/spharm_point_interpolation.f90',
 )
 
 py.extension_module(
