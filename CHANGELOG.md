@@ -3,7 +3,7 @@
 All notable changes to the maintained `pyspharm-ng` distribution are recorded
 here. Historical `pyspharm` releases predate this changelog.
 
-## 0.2.1.dev0 — Unreleased
+## 0.2.1 — 2026-08-19
 
 ### Changed
 
