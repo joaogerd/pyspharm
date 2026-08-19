@@ -123,5 +123,8 @@ Stages 2 and 3 establish modern packaging, compatibility and a free-form
 Fortran build path. Stage 4 adds the maintained `pyspharm` API while preserving
 `spharm` for existing applications. Stage 5 adds portable Linux-wheel and
 GitHub-release workflows; Stage 7 adds validated scientific diagnostics and
-executable examples. The supported platform scope is defined in
+executable examples. Stage 8 now begins real compiled-core modernization:
+selected routines are replaced by maintained free-form Fortran modules while
+their historical F77 source files remain as provenance and their F2PY symbols
+remain compatible. The supported platform scope is defined in
 [the release policy](docs/release-policy.md).

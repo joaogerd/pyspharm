@@ -3,6 +3,48 @@
 All notable changes to the maintained `pyspharm-ng` distribution are recorded
 here. Historical `pyspharm` releases predate this changelog.
 
+## 0.2.1 — 2026-08-19
+
+### Changed
+
+- Replace the compiled implementations of the low-level `lap` and `invlap`
+  spectral operators with explicit, free-form Fortran module procedures while
+  preserving the historical external F2PY symbols and single-precision ABI.
+- Replace the compiled implementation of `multsmoothfact` with an explicit,
+  free-form Fortran module procedure while preserving its F2PY symbol and
+  compact spectral ordering.
+- Replace the compiled `getlegfunc` and `specintrp` adapters with explicit,
+  free-form Fortran procedures while preserving their F2PY call signatures,
+  compact ordering and delegation to the established Legendre kernels.
+- Replace the compiled `onedtotwod` and `twodtooned` scalar storage adapters
+  with explicit, free-form Fortran procedures while preserving their F2PY
+  symbols, triangular layout and historical scaling.
+- Replace the compiled `onedtotwod_vrtdiv` and `twodtooned_vrtdiv` vector
+  storage adapters with explicit, free-form Fortran procedures while preserving
+  F2PY symbols, physical-degree factors, signs and single-precision ABI.
+- Replace the compiled `ihgeod` geodesic coordinate generator with explicit,
+  free-form Fortran while preserving its F2PY symbol and output layout.
+- Normalize the non-representable total-degree-zero vector mode to zero before
+  expansion and after compaction.
+- Keep legacy Stage 8 F77 routines as provenance-only reference sources; they
+  are no longer compiled by Meson.
+
+### Added
+
+- Analytical regression tests for Laplacian and inverse-Laplacian spectral
+  factors, including the zero global-mean convention and round-trip behavior.
+- Analytical regression tests that verify isotropic smoothing factors are
+  applied by total degree across multiple spectral fields.
+- Independent tests for normalized low-degree associated-Legendre values and
+  pointwise compact spectral synthesis.
+- Regression tests for scalar compact/expanded storage mapping, historical
+  scaling and exact round trips across multiple fields.
+- Regression tests for vector compact/expanded storage factors, signs,
+  zero-mode normalization, round trips and high-level wind invariance.
+- Geometric tests for geodesic unit-sphere coordinates, fivefold symmetry,
+  edge-two icosahedron vertices and edge-one pole handling.
+- Stage 8 documentation for real compiled-core modernization units.
+
 ## 0.2.0 — 2026-06-27
 
 ### Added

@@ -1,49 +1,29 @@
-! Explicit contracts for selected external legacy routines.
-! The routines remain external symbols so the current F2PY ABI is unchanged.
+! Explicit contracts for selected external legacy kernels.
+! The routines remain external symbols while higher-level adapters may move to
+! modern modules without changing the F2PY ABI.
 module spharm_legacy_interfaces
-  use spharm_kinds, only : real32
+  use spharm_kinds, only : int32, real32
   implicit none
   private
 
-  public :: getlegfunc
-  public :: specintrp
-  public :: lap
-  public :: invlap
+  public :: alfk
+  public :: lfpt
 
   interface
-    subroutine getlegfunc(legfunc, lat, ntrunc)
-      import :: real32
-      integer, intent(in) :: ntrunc
-      real(real32), intent(out) :: legfunc((ntrunc + 1) * (ntrunc + 2) / 2)
-      real(real32), intent(in) :: lat
-    end subroutine getlegfunc
+    subroutine alfk(n, m, cp)
+      import :: int32, real32
+      integer(int32), intent(in) :: n
+      integer(int32), intent(in) :: m
+      real(real32), intent(out) :: cp((n / 2_int32) + 1_int32)
+    end subroutine alfk
 
-    subroutine specintrp(rlon, ntrunc, datnm, scrm, pnm, ob)
-      import :: real32
-      integer, intent(in) :: ntrunc
-      real(real32), intent(in) :: rlon
-      complex(real32), intent(in) :: datnm((ntrunc + 1) * (ntrunc + 2) / 2)
-      complex(real32), intent(inout) :: scrm(ntrunc + 1)
-      real(real32), intent(in) :: pnm((ntrunc + 1) * (ntrunc + 2) / 2)
-      real(real32), intent(out) :: ob
-    end subroutine specintrp
-
-    subroutine lap(dataspec, dataspec_lap, nmdim, nt, rsphere)
-      import :: real32
-      integer, intent(in) :: nmdim
-      integer, intent(in) :: nt
-      complex(real32), intent(in) :: dataspec(nmdim, nt)
-      complex(real32), intent(out) :: dataspec_lap(nmdim, nt)
-      real(real32), intent(in) :: rsphere
-    end subroutine lap
-
-    subroutine invlap(dataspec, dataspec_ilap, nmdim, nt, rsphere)
-      import :: real32
-      integer, intent(in) :: nmdim
-      integer, intent(in) :: nt
-      complex(real32), intent(in) :: dataspec(nmdim, nt)
-      complex(real32), intent(out) :: dataspec_ilap(nmdim, nt)
-      real(real32), intent(in) :: rsphere
-    end subroutine invlap
+    subroutine lfpt(n, m, theta, cp, pb)
+      import :: int32, real32
+      integer(int32), intent(in) :: n
+      integer(int32), intent(in) :: m
+      real(real32), intent(in) :: theta
+      real(real32), intent(in) :: cp((n / 2_int32) + 1_int32)
+      real(real32), intent(out) :: pb
+    end subroutine lfpt
   end interface
 end module spharm_legacy_interfaces

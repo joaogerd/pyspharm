@@ -19,9 +19,9 @@ or performance changes.
    - remove obsolete `numpy.distutils` build paths;
    - repair Python 3 integer-size handling and package-local extension imports;
    - establish isolated wheel and source-distribution installation tests.
-3. **Fortran modernization without numerical change**
-   - migrate fixed-form Fortran sources to free-form Fortran;
-   - introduce explicit interfaces, kinds and `implicit none`;
+3. **Fortran build-path modernization**
+   - migrate fixed-form Fortran sources to free-form generated sources;
+   - introduce shared kinds and selected external interfaces;
    - retain the legacy numerical contract proven by the reference suite.
 4. **Modern public API and compatibility layer**
    - introduce the maintained `pyspharm` API;
@@ -45,6 +45,12 @@ or performance changes.
      imports;
    - add further API parity only through independent documentation and
      equivalence tests.
+8. **Real Fortran core modernization**
+   - replace selected compiled F77 routines with maintained free-form Fortran
+     modules while keeping the F77 files as provenance;
+   - preserve F2PY external symbols through thin ABI wrappers;
+   - modernize one mathematically isolated unit at a time with direct numerical
+     regression tests and `legacy-contract-v1` as the release gate.
 
 Each stage is accepted only when its scope is tested and documented. Later
 stages may refine implementation details but must not silently weaken the
