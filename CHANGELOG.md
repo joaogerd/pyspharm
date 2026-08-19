@@ -19,10 +19,13 @@ here. Historical `pyspharm` releases predate this changelog.
 - Replace the compiled `onedtotwod` and `twodtooned` scalar storage adapters
   with explicit, free-form Fortran procedures while preserving their F2PY
   symbols, triangular layout and historical scaling.
-- Keep `src/lap.f`, `src/invlap.f`, `src/multsmoothfact.f`,
-  `src/getlegfunc.f`, `src/specintrp.f`, `src/onedtotwod.f` and
-  `src/twodtooned.f` as provenance-only reference sources; they are no longer
-  compiled by Meson.
+- Replace the compiled `onedtotwod_vrtdiv` and `twodtooned_vrtdiv` vector
+  storage adapters with explicit, free-form Fortran procedures while preserving
+  F2PY symbols, physical-degree factors, signs and single-precision ABI.
+- Normalize the non-representable total-degree-zero vector mode to zero before
+  expansion and after compaction.
+- Keep legacy Stage 8 F77 routines as provenance-only reference sources; they
+  are no longer compiled by Meson.
 
 ### Added
 
@@ -34,6 +37,8 @@ here. Historical `pyspharm` releases predate this changelog.
   pointwise compact spectral synthesis.
 - Regression tests for scalar compact/expanded storage mapping, historical
   scaling and exact round trips across multiple fields.
+- Regression tests for vector compact/expanded storage factors, signs,
+  zero-mode normalization, round trips and high-level wind invariance.
 - Stage 8 documentation for real compiled-core modernization units.
 
 ## 0.2.0 — 2026-06-27
