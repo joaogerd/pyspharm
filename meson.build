@@ -3,7 +3,7 @@ project(
   'pyspharm-ng',
   'c',
   'fortran',
-  version: '0.2.1.dev0',
+  version: '0.2.1',
   license: ['BSD-3-Clause', 'LicenseRef-UCAR-SPHEREPACK'],
   license_files: [
     'LICENSE',
@@ -63,8 +63,11 @@ inc_np = include_directories(incdir_numpy, incdir_f2py)
 
 # Most F77 provenance sources remain versioned in src/. Meson converts these
 # sources deterministically and compiles the free-form outputs from its private
-# build directory. Stage 8 replaces isolated adapters and helpers with explicit
-# src/modern/ implementations while retaining the historical F77 as provenance.
+# build directory. Scalar Laplacian, inverse-Laplacian, isotropic smoothing,
+# pointwise Legendre/interpolation adapters, scalar/vector compact-expanded
+# storage converters, and the geodesic coordinate generator are intentionally
+# replaced subsets: their historical sources remain as provenance, while the
+# extension compiles ABI-preserving implementations in src/modern/.
 fixed_form_fortran_sources = files(
   # SPHEREPACK sources
   'src/gaqd.f',
