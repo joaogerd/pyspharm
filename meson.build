@@ -63,11 +63,8 @@ inc_np = include_directories(incdir_numpy, incdir_f2py)
 
 # Most F77 provenance sources remain versioned in src/. Meson converts these
 # sources deterministically and compiles the free-form outputs from its private
-# build directory. Scalar Laplacian, inverse-Laplacian, isotropic smoothing,
-# pointwise Legendre/interpolation adapters, and scalar/vector compact-expanded
-# storage converters are intentionally replaced subsets: their historical
-# sources remain as provenance, while the extension compiles ABI-preserving
-# implementations in src/modern/.
+# build directory. Stage 8 replaces isolated adapters and helpers with explicit
+# src/modern/ implementations while retaining the historical F77 as provenance.
 fixed_form_fortran_sources = files(
   # SPHEREPACK sources
   'src/gaqd.f',
@@ -89,7 +86,6 @@ fixed_form_fortran_sources = files(
   'src/vhagc.f',
   'src/vhsec.f',
   'src/vhsgc.f',
-  'src/ihgeod.f',
   'src/alf.f',
 )
 
@@ -113,6 +109,7 @@ modern_fortran_sources = files(
   'src/modern/spharm_spectral_operators.f90',
   'src/modern/spharm_spectral_storage.f90',
   'src/modern/spharm_vector_spectral_storage.f90',
+  'src/modern/spharm_geodesic.f90',
   'src/modern/spharm_point_interpolation.f90',
 )
 
