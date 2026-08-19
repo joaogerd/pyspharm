@@ -32,7 +32,6 @@ SOURCES = (
     "vhagc.f",
     "vhsec.f",
     "vhsgc.f",
-    "ihgeod.f",
     "alf.f",
 )
 COMMENT_PREFIXES = frozenset("Cc*!Dd")
